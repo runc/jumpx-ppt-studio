@@ -200,6 +200,13 @@
     - **双窗同步**:`BroadcastChannel('jumpx-present-<id>')`,消息带 `sender(role+id)` 防回声,presenter 进入发 `hello`、stage 回 `state` 握手;翻页广播 `goto`。
   - `App.jsx`:URL `?present=<id>[&role=presenter]` 路由到舞台/演讲者;完成态加「▶ 演示」按钮(`setPresentId`)。`proto.css` 加 present 全套样式。
   - **验证(浏览器·真 run)**:舞台全屏全保真(内容页四宫格正确)、键盘连按修复(2×→ 准确 +2)、overview 5 真缩略图+当前绿框、演讲者视图当前+下一页+真 notes+计时器、BroadcastChannel 点下一页发出 `{goto,page,sender}`。`vite build` 通过。
+- **Phase 7 · 内容「血肉」加厚（默认配方深度教学版）— 完成 ✅**(用户反馈"页面单薄")
+  - **诊断**:thinness 是 skill *故意*写薄(05-writer 卡"body 3-5 条/≤24 字、notes 2-5 句";官方 demo 比我们还薄)+ 纯主题无源材料。这正是配方「可改层」要解决的。
+  - **改默认配方可改层**(用户选"页面+备注都厚、直接调厚默认"):
+    - `03-strategist`:加"深度教学版" beat(钩子/机制/例子数据/对比/可执行收束);"X 分钟分享 ≠ 页数指令",资料少也按 8-10 页;每个核心点单独成页展开。
+    - `05-writer`:on-slide 每要点带支撑层(主点→为什么/数据/例子,正反例);body 4-6 条;speaker_notes ≥150 字**逐字口播稿**(禁导演提示,给正反对照);无源材料从领域常识补数据/例子(标待核实)。density=2(详尽)。
+  - **持久化(关键)**:workspace/recipes 是 gitignored 运行态、上游 skill 只读不能改——故新增**入库种子** `backend/recipe_seed/default/`(厚版 05-writer/03-strategist + manifest_overrides.json),`recipes._seed_from_base` 在 base 之上叠加(`_apply_seed_overrides`,仅覆盖 EDITABLE + META_FIELDS 白名单)。表达「锁定基座 + 我们的默认配方可改层覆盖」。
+  - **验证(真生成两轮对照)**:页面质变——封面有钩子+数据(认知≈两天没睡)、新增机制页(脑脊液冲洗/阿尔茨海默蛋白)、误区→事实带理由、行动带机制(18-20°C/蓝光);notes 从~99 字"导演提示"变成 150-170 字**逐字讲稿**+暖心收尾。reseed 覆盖生效、validate ok。**遗留**:页数(5)/条数(3)模型仍较顽固(LLM steering 上限),但每页内容厚度是质变。
 - **后续可选**:① Phase 4b-3 可编辑版 PPTX(移植 PPTAgent html2pptx,Node+pptxgenjs,接受富 CSS 主题保真退化)② Electron 桌面版(双击启动,后期)③ 出图路径(AI 配图,需图片 backend key)。**核心 MVP(生成→交互→预览→导出 PDF/PNG/PPTX/HTML→单机 Docker)已闭环。**
 
 ## 护栏自检

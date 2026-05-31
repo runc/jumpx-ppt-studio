@@ -102,18 +102,49 @@ def update_manifest(rid: str, fields: dict) -> dict:
     return m
 
 
+# 内置配方"可改层"种子（入库，不改只读上游 skill）。见 recipe_seed/README.md。
+SEED_OVERRIDES = Path(__file__).resolve().parent / "recipe_seed"
+
+
+def _apply_seed_overrides(rid: str, manifest: dict) -> dict:
+    """在 base skill 拷贝之上，叠加 recipe_seed/<rid>/ 的可改层覆盖；返回（可能被改的）manifest。"""
+    seed = SEED_OVERRIDES / rid
+    if not seed.is_dir():
+        return manifest
+    # 覆盖可改层 reference 文件（只允许 EDITABLE 内的）
+    ref_dir = seed / "references"
+    if ref_dir.is_dir():
+        for f in ref_dir.iterdir():
+            rel = f"references/{f.name}"
+            if rel in EDITABLE and f.is_file():
+                shutil.copyfile(f, recipe_dir(rid) / "references" / f.name)
+    # 合并 manifest 覆盖（仅白名单字段）
+    mo = seed / "manifest_overrides.json"
+    if mo.is_file():
+        try:
+            over = json.loads(mo.read_text(encoding="utf-8"))
+            for k, v in over.items():
+                if k in META_FIELDS:
+                    manifest[k] = v
+        except Exception:  # noqa: BLE001
+            pass
+    return manifest
+
+
 def _seed_from_base(rid: str, name: str, *, author: str = "builtin") -> str:
     dest = recipe_dir(rid)
     if dest.exists():
         shutil.rmtree(dest)
     shutil.copytree(BASE_SKILL, dest, ignore=_IGNORE)
     _ensure_background(rid)
-    write_manifest(rid, {
+    manifest = {
         "id": rid, "name": name, "version": "1", "author": author,
         "contract_version": CONTRACT_VERSION, "editable": EDITABLE, "density": 1,
         "persona": "懂通用清单与图表 · 写得干练清晰 · 厚薄适中",
         "domain": ["清单", "图表", "概念"], "voice": "干练清晰", "tag": "内置 · 推荐",
-    })
+    }
+    manifest = _apply_seed_overrides(rid, manifest)
+    write_manifest(rid, manifest)
     return rid
 
 
