@@ -150,10 +150,14 @@ def list_styles(rid: str) -> list[dict]:
         for f in sorted(d.glob("*.json")):
             try:
                 p = json.loads(f.read_text(encoding="utf-8"))
+                cp = p.get("color_palette", {}) or {}
                 out.append({"style_name": p.get("style_name", f.stem),
                             "display_name": p.get("display_name", f.stem),
                             "imported": f.stem.startswith("imported-"),
-                            "mood": p.get("mood", "")})
+                            "mood": p.get("mood", ""),
+                            "primary_color": cp.get("primary_color", "#111827"),
+                            "accent_color": cp.get("accent_color", "#2563EB"),
+                            "background_color": cp.get("background_color", "#FFFFFF")})
             except Exception:  # noqa: BLE001
                 pass
     return out

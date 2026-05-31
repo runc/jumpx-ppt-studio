@@ -18,8 +18,32 @@ function InputScreen({ onStart }) {
   const [material, setMaterial] = useStateS('');     // 参考资料（粘贴 + 上传抽取，合并）
   const [files, setFiles] = useStateS([]);           // 已附文件 [{name, chars}]
   const [busy, setBusy] = useStateS(false);          // 抽取中
+  const [styleName, setStyleName] = useStateS('');   // 本次使用的导入风格 style_name
+  const [styleLabel, setStyleLabel] = useStateS(''); // 显示名
+  const [importingStyle, setImportingStyle] = useStateS(false);
   const fileRef = React.useRef(null);
+  const styleRef = React.useRef(null);
   const examples = ['15 分钟生活圈', '用户增长的第一性原理', '宋代美学入门', '我的产品复盘'];
+
+  async function onPickStyle(e) {
+    const f = (e.target.files || [])[0];
+    if (!f) return;
+    setImportingStyle(true);
+    try {
+      const label = (f.name || '参考风格').replace(/\.[^.]+$/, '');
+      const r = await fetch('/api/styles/import?name=' + encodeURIComponent(label), {
+        method: 'POST', headers: { 'content-type': f.type || 'image/png' }, body: await f.arrayBuffer(),
+      });
+      const j = await r.json();
+      if (j && j.style_name) { setStyleName(j.style_name); setStyleLabel(label); }
+      else alert('风格识别失败：' + ((j && j.error) || '未知'));
+    } catch (err) {
+      alert('风格导入失败：' + err.message);
+    } finally {
+      setImportingStyle(false);
+      if (styleRef.current) styleRef.current.value = '';
+    }
+  }
 
   async function onPickFiles(e) {
     const picked = Array.from(e.target.files || []);
@@ -72,11 +96,17 @@ function InputScreen({ onStart }) {
               <input ref={fileRef} type="file" accept=".pdf,.docx,.pptx,.xlsx,.csv,.html,.htm,.txt,.md" multiple
                 style={{ display: 'none' }} onChange={onPickFiles} />
               <button className="attach" onClick={() => fileRef.current && fileRef.current.click()} disabled={busy}>
-                {busy ? <span className="ring" style={{ width: 13, height: 13 }} /> : '＋'} {busy ? '解析中…' : '上传资料（PDF/Word/PPT/Excel）'}
+                {busy ? <span className="ring" style={{ width: 13, height: 13 }} /> : '＋'} {busy ? '解析中…' : '上传资料'}
               </button>
-              {matChars > 0 && <span className="hintn">已附资料 {matChars} 字{files.length ? `（${files.length} 个文件）` : ''}</span>}
+              <input ref={styleRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onPickStyle} />
+              <button className="attach" onClick={() => styleRef.current && styleRef.current.click()} disabled={importingStyle}
+                title="上传一张参考图，AI 识别它的视觉风格用于本次生成">
+                {importingStyle ? <span className="ring" style={{ width: 13, height: 13 }} /> : '🎨'} {importingStyle ? '识别风格…' : '样式导入'}
+              </button>
+              {matChars > 0 && <span className="hintn">已附资料 {matChars} 字</span>}
+              {styleName && <span className="style-chip">风格 · {styleLabel}<i onClick={() => { setStyleName(''); setStyleLabel(''); }}>✕</i></span>}
               <span className="spacer" />
-              <button className="cta" onClick={() => onStart(topic, { len, aud, tone, material })}>开始生成 {ARROW}</button>
+              <button className="cta" onClick={() => onStart(topic, { len, aud, tone, material, style: styleName })}>开始生成 {ARROW}</button>
             </div>
           </div>
           <div className="ex">

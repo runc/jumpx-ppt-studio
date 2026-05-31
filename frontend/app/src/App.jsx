@@ -6,6 +6,7 @@ import { DECK, TEMPLATES } from './data.js'
 import { useAgent, startRun, readInterrupt, runFinished, findOutputPath, findRunId } from './agent.js'
 import { LiveWorkbench } from './LiveWorkbench.jsx'
 import { PresentStage, PresenterView } from './Present.jsx'
+import { StyleLibrary } from './StyleLibrary.jsx'
 
 // —— App：状态机 + 顶栏阶段条 + 路由 + 明暗 Tweak + 规划过渡 + 导出菜单 ——
 // 依赖 Screens / Workbench、proto.css
@@ -52,6 +53,7 @@ function App() {
   const [planning, setPlanning] = useStateA(false);
   const [exportOpen, setExportOpen] = useStateA(false);
   const [skillsOpen, setSkillsOpen] = useStateA(false);
+  const [styleLibOpen, setStyleLibOpen] = useStateA(false);
   const [live, setLive] = useStateA(false);   // true=接真 LangGraph 生成流
   const [exporting, setExporting] = useStateA(null);   // 正在导出的格式（渲染需几秒，给反馈）
 
@@ -113,15 +115,15 @@ function App() {
   function TopRight() {
     const darkBtn = <button className="iconbtn" title="明 / 暗" onClick={() => setDark(d => !d)}>{dark ? sun : moon}</button>;
     const skillsBtn = <button className="iconbtn" title="配方 / Skills" onClick={() => setSkillsOpen(true)}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 7h10M4 12h7M4 17h10" /><circle cx="18" cy="7" r="2.2" /><circle cx="14" cy="12" r="2.2" /><circle cx="18" cy="17" r="2.2" /></svg></button>;
+    const styleLibBtn = <button className="iconbtn" title="样式库" onClick={() => setStyleLibOpen(true)}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="13.5" cy="6.5" r="2.5" /><circle cx="17.5" cy="12.5" r="2.5" /><circle cx="8.5" cy="7.5" r="2.5" /><circle cx="6.5" cy="13.5" r="2.5" /><path d="M12 22a10 10 0 1 1 10-10c0 2-2 3-4 3h-2a2 2 0 0 0-1 4 2 2 0 0 1-3 3z" /></svg></button>;
     if (live) return (
-      <div className="tb-right" style={{ position: 'relative' }}>{skillsBtn}{darkBtn}
+      <div className="tb-right" style={{ position: 'relative' }}>{skillsBtn}{styleLibBtn}{darkBtn}
         {finished && runId ? <>
           <button className="btn" onClick={() => setPresentId(runId)}>▶ 演示</button>
           <button className="btn primary" onClick={() => setExportOpen(o => !o)}>导出 ▾</button>
         </>
           : agent.isLoading ? <button className="btn" onClick={() => agent.stop()}>停止</button> : null}
-        <div className="avatar">林</div>
-        {exportOpen && finished && runId && (
+                {exportOpen && finished && runId && (
           <div className="export-pop">
             {[['PDF', '矢量 · 每页一张 · 便于打印/提交', `/api/runs/${runId}/export/pdf`, `${runId}.pdf`],
               ['PPTX', '每页整版图 · 像素级保真 · 可放映', `/api/runs/${runId}/export/pptx`, `${runId}.pptx`],
@@ -144,19 +146,18 @@ function App() {
         )}
       </div>
     );
-    if (screen === 'input') return <div className="tb-right">{skillsBtn}{darkBtn}<div className="avatar">林</div></div>;
-    if (screen === 'outline') return <div className="tb-right">{skillsBtn}{darkBtn}<button className="btn primary" onClick={() => setScreen('template')}>确认大纲 · 选模板 {arrow}</button><div className="avatar">林</div></div>;
-    if (screen === 'template') return <div className="tb-right">{skillsBtn}{darkBtn}<button className="btn" onClick={() => setScreen('outline')}>{back} 返回大纲</button><button className="btn primary" onClick={() => setScreen('output')}>用「{tplName}」· 下一步 {arrow}</button><div className="avatar">林</div></div>;
-    if (screen === 'output') return <div className="tb-right">{skillsBtn}{darkBtn}<button className="btn" onClick={() => setScreen('template')}>{back} 返回模板</button><button className="btn primary" onClick={() => startRender(mode)}>用 {mode === 'html' ? 'HTML' : 'AI 配图'} 生成 · 开始 {arrow}</button><div className="avatar">林</div></div>;
+    if (screen === 'input') return <div className="tb-right">{skillsBtn}{styleLibBtn}{darkBtn}</div>;
+    if (screen === 'outline') return <div className="tb-right">{skillsBtn}{styleLibBtn}{darkBtn}<button className="btn primary" onClick={() => setScreen('template')}>确认大纲 · 选模板 {arrow}</button></div>;
+    if (screen === 'template') return <div className="tb-right">{skillsBtn}{styleLibBtn}{darkBtn}<button className="btn" onClick={() => setScreen('outline')}>{back} 返回大纲</button><button className="btn primary" onClick={() => setScreen('output')}>用「{tplName}」· 下一步 {arrow}</button></div>;
+    if (screen === 'output') return <div className="tb-right">{skillsBtn}{styleLibBtn}{darkBtn}<button className="btn" onClick={() => setScreen('template')}>{back} 返回模板</button><button className="btn primary" onClick={() => startRender(mode)}>用 {mode === 'html' ? 'HTML' : 'AI 配图'} 生成 · 开始 {arrow}</button></div>;
     // workbench
-    if (!wbDone) return <div className="tb-right">{skillsBtn}{darkBtn}<button className="btn dis">导出 · 待完成</button><div className="avatar">林</div></div>;
+    if (!wbDone) return <div className="tb-right">{skillsBtn}{styleLibBtn}{darkBtn}<button className="btn dis">导出 · 待完成</button></div>;
     return (
       <div className="tb-right" style={{ position: 'relative' }}>
-        {skillsBtn}{darkBtn}
+        {skillsBtn}{styleLibBtn}{darkBtn}
         <button className="btn">分享</button>
         <button className="btn primary" onClick={() => setExportOpen(o => !o)}>导出 ▾</button>
-        <div className="avatar">林</div>
-        {exportOpen && (
+                {exportOpen && (
           <div className="export-pop">
             {[['HTML 网页', '可翻页 · 在线分享'], ['PDF', '便于打印 / 提交'], ['图片 PNG', '逐页导出'], ['PPTX', '在 PowerPoint / WPS 继续改']].map(([t, s]) => (
               <div className="ei" key={t} onClick={() => setExportOpen(false)}>
@@ -209,6 +210,7 @@ function App() {
       )}
 
       {skillsOpen && <RecipeHub onClose={() => setSkillsOpen(false)} />}
+      {styleLibOpen && <StyleLibrary onClose={() => setStyleLibOpen(false)} />}
     </div>
   );
 }

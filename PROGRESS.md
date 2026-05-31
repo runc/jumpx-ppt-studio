@@ -224,7 +224,13 @@
   - `recipe_api`:`POST /styles/import`(图片→新 style_name)、`GET /styles`;`vite.config` 加 `/api/styles` 代理。
   - **验证(HTTP·真图真模型)**:`/styles/import` 封面图→`imported-ref-2`(唯一后缀)、识别 accent #2563eb/bg #f8fafc/sans/"简约干净干练"、preset+css 产出、schema 放开、`/styles` 列 7 内置+导入。测试残留已 reseed 清理(默认配方回干净态、厚版 density=2 保留)。
   - **诚实边界(v1)**:学配色/字体/密度/mood;版式继承最近骨架(CSS 整文件，版式学不到)；只做图片(PPTX 主题解析后续)。
-  - **下一步(前端)**:① 独立「样式导入」按钮上传图片调 `/styles/import` ② `choose_template` 覆盖层列出 imported 风格供选用 ③ 跑一遍"导入风格→用它生成"闭环。
+- **Phase 9b · 风格导入前端 — 完成 ✅**(用户定 UI:导入入口在上传资料旁、右上角样式库、去掉头像)
+  - 输入页:`上传资料` 旁加「🎨 样式导入」——传图→`/api/styles/import`→识别风格存入当前配方库+本次默认选它,显示「风格 · X」chip。`composeBrief` 把 `style` 写进 brief(指定 style_name)。
+  - 右上角加「样式库」入口 `StyleLibrary.jsx`(读 `/api/styles`,色卡+mood,内置/导入分区)；`list_styles` 补回配色供色卡。
+  - **去掉右上角用户头像**(无账号概念)。
+  - **持久化说明**:导入风格由后端写进当前配方的 `assets/`(workspace 卷,磁盘持久、跨会话在、库里可见),不需要 localStorage。
+  - **验证(浏览器)**:输入页双按钮、头像消失、样式库列 7 内置 + 导入后出现「导入」卡(eval 确认)、导入 HTTP 通。`vite build` 通过。测试残留 reseed 清理。
+  - **遗留**:跑一遍"UI 导入风格→用它生成 deck"完整闭环(需一次真生成 + 确认 Designer 用上 imported style_name)；`choose_template` 覆盖层可选列出 imported 风格。
 - **后续可选**:① Phase 4b-3 可编辑版 PPTX(移植 PPTAgent html2pptx,Node+pptxgenjs,接受富 CSS 主题保真退化)② Electron 桌面版(双击启动,后期)③ 出图路径(AI 配图,需图片 backend key)。**核心 MVP(生成→交互→预览→导出 PDF/PNG/PPTX/HTML→单机 Docker)已闭环。**
 
 ## 护栏自检
