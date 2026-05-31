@@ -167,8 +167,13 @@
   - **完成态检测修复**:`build_slides_html` 直写真实磁盘(不走虚拟 `write_file`),故 `stream.values.files` 无 index.html → 改用「最后 AI 文本里的 index.html 路径 + todos 全完成」判定 `runFinished`,页数从「N 页」文本解析。
   - **验证(浏览器,真 Ark 生成,主题=重新认识睡眠)**:输入→流式 todos/活动→`confirm_outline` 覆盖层(真大纲)→resume→`choose_template` 覆盖层(agent 真推荐 teaching-clean/sketch-notes/editorial-magazine)→选 teaching-clean→`choose_render_mode` 覆盖层→选 HTML→渲染→✅完成(8/8 todos、产物 `/runs/sleep-sharing/index.html` 15.8KB/5 页、阶段条到完成、导出按钮出现)。三交互点 + resume + 完成态全程截图确认。前端 `vite build` 通过。
   - **本地起法**:① `cd backend && .venv/bin/langgraph dev --port 2024`(注册 `slides_agent`);② `cd backend && .venv/bin/uvicorn recipe_api:app --port 2025`;③ `cd frontend/app && npm run dev`(:5180,/lg→2024、/api→2025)。
-  - **遗留(归 Phase 4)**:胶片缩略图的逐页标题需后端读 run 的 `source/slide_plan.json`(FilesystemBackend 模式 `state.files` 不镜像磁盘)——和导出/run 文件访问一起做;当前仅按页数显示占位缩略图。
-- **下一步 · Phase 4 · 导出(PPTX/PDF/图片)+ run 文件访问(后端读 slide_plan/index.html → 胶片真缩略图 + 内嵌预览)。然后 Phase 5 打包单机应用。**
+  - **遗留(已在 Phase 4a 解决)**:胶片缩略图逐页标题 + 内嵌预览。
+- **Phase 4a · run 文件访问 + 完成态内嵌预览 — 完成 ✅**
+  - `backend/runs.py`:只读访问 `workspace/runs/<id>/`——`list_runs`(id/标题/页数/has_html,按 mtime 倒序)、`get_plan`(读 `source/slide_plan.json`)、`index_html_path`。rid 严格 `^[A-Za-z0-9_-]+$` 且 resolve 必须在 RUNS 内(越界→404,已验证 `..%2f..%2fetc`→404)。
+  - `recipe_api.py` 加路由:`GET /runs`、`GET /runs/{id}/plan`、`GET /runs/{id}/view`(FileResponse text/html)。`vite.config` 加 `/api/runs`→:2025 代理。
+  - `agent.js` 加 `findRunId`(从产物路径 `/runs/<id>/index.html` 抽 id);`LiveWorkbench` 完成后 `fetch /api/runs/{id}/plan` 拿真 pages → 胶片**真页标题**缩略图,done 卡内嵌 `<iframe src=/api/runs/{id}/view>` **预览生成的 deck**(可翻页)+「新标签打开↗」。
+  - **验证(浏览器·真生成)**:完成态 iframe 渲染出 teaching-clean 封面页(标题"你以为的睡眠常识…"、可翻页 ‹1/5›),胶片 5 个缩略图带真标题(你以为…/睡眠到底…/三个误解/今晚小行动/重新认识自己)。`vite build` 通过。
+- **下一步 · Phase 4b · 导出 PDF/图片/PPTX(需拍板:依赖 playwright+chromium ~150MB & PPTX 是「图片忠实版」还是「python-pptx 可编辑版」)。HTML 导出已天然具备(=产物 index.html)。然后 Phase 5 打包单机应用。**
 
 ## 护栏自检
 - [x] 未 git commit / push。

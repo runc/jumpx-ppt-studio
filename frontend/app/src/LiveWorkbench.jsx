@@ -1,6 +1,6 @@
 // 实时工作台：由 LangGraph 流驱动（真 todos / 活动流 / 三交互点中断覆盖层 / 文件）。
 import React from 'react'
-import { readInterrupt, respondInterrupt, findOutputPath, runFinished, findPageCount } from './agent.js'
+import { readInterrupt, respondInterrupt, findOutputPath, runFinished, findPageCount, findRunId } from './agent.js'
 
 const REAL_PRESETS = ['teaching-clean', 'editorial-magazine', 'swiss-system', 'blueprint', 'sketch-notes', 'corporate', 'creator-social']
 const chk = <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3"><path d="M5 13l4 4L19 7" /></svg>
@@ -33,11 +33,6 @@ function findSlidePlan(files) {
   if (!key) return null
   try { return JSON.parse(files[key]) } catch { return null }
 }
-function findIndexHtml(files) {
-  if (!files) return null
-  return Object.keys(files).find(k => k.endsWith('index.html')) || null
-}
-
 function Overlay({ stream }) {
   const intr = readInterrupt(stream)
   if (!intr) return null
@@ -115,7 +110,20 @@ export function LiveWorkbench({ stream }) {
   const finished = runFinished(stream)
   const intr = readInterrupt(stream)
   const loading = stream.isLoading
-  const pages = plan && Array.isArray(plan.pages) ? plan.pages : []
+  const runId = finished ? findRunId(stream) : null
+
+  // 完成后从后端拉真 slide_plan（缩略图标题）；FilesystemBackend 模式下虚拟 files 不含它
+  const [runPlan, setRunPlan] = React.useState(null)
+  React.useEffect(() => {
+    if (!runId) { setRunPlan(null); return }
+    let alive = true
+    fetch(`/api/runs/${runId}/plan`).then(r => (r.ok ? r.json() : null)).then(d => { if (alive) setRunPlan(d) }).catch(() => { })
+    return () => { alive = false }
+  }, [runId])
+
+  const virtualPages = plan && Array.isArray(plan.pages) ? plan.pages : []
+  const fetchedPages = runPlan && Array.isArray(runPlan.pages) ? runPlan.pages : []
+  const pages = virtualPages.length ? virtualPages : fetchedPages
   const pageCount = pages.length || findPageCount(stream)
   const doneCount = todos.filter(t => t.st === 'done').length
   const lastText = (() => {
@@ -129,8 +137,14 @@ export function LiveWorkbench({ stream }) {
         <div className="wb-stage" style={{ position: 'relative' }}>
           {intr ? <Overlay stream={stream} />
             : finished ? (
-              <div className="ov-card"><div className="ov-h">✅ 已生成{pageCount ? ` · ${pageCount} 页` : ''}</div>
-                <p style={{ color: 'var(--ink-2)', fontSize: 13, lineHeight: 1.7 }}>产物：<code>{indexHtml || 'runs/…/index.html'}</code><br />（在工作区 runs/ 下，可打开查看）</p>
+              <div className="live-done">
+                <div className="ld-bar">
+                  <span className="ld-h">✅ 已生成{pageCount ? ` · ${pageCount} 页` : ''}</span>
+                  {runId && <a className="btn" href={`/api/runs/${runId}/view`} target="_blank" rel="noreferrer">新标签打开 ↗</a>}
+                </div>
+                {runId
+                  ? <iframe className="ld-frame" src={`/api/runs/${runId}/view`} title="生成的幻灯片预览" />
+                  : <p style={{ color: 'var(--ink-2)', fontSize: 13, lineHeight: 1.7 }}>产物：<code>{indexHtml || 'runs/…/index.html'}</code></p>}
               </div>
             ) : (
               <div className="ov-card">

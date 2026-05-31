@@ -17,6 +17,7 @@ from starlette.responses import FileResponse, JSONResponse
 from starlette.routing import Route
 
 import recipes as R
+import runs as RUN
 
 R.ensure_recipes()
 
@@ -100,6 +101,26 @@ async def revalidate(request):
     return JSONResponse(R.revalidate_all())
 
 
+# —— Run 产物（Phase 4a）：完成态真缩略图 + 内嵌预览 ——
+
+async def list_runs(request):
+    return JSONResponse({"runs": RUN.list_runs()})
+
+
+async def run_plan(request):
+    plan = RUN.get_plan(request.path_params["id"])
+    if plan is None:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    return JSONResponse(plan)
+
+
+async def run_view(request):
+    p = RUN.index_html_path(request.path_params["id"])
+    if p is None:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    return FileResponse(p, media_type="text/html")
+
+
 routes = [
     Route("/recipes", list_recipes, methods=["GET"]),
     Route("/recipes/active", set_active, methods=["POST"]),
@@ -109,6 +130,9 @@ routes = [
     Route("/recipes/{id}", save_recipe, methods=["PUT"]),
     Route("/recipes/{id}/fork", fork_recipe, methods=["POST"]),
     Route("/recipes/{id}/export", export_recipe, methods=["GET"]),
+    Route("/runs", list_runs, methods=["GET"]),
+    Route("/runs/{id}/plan", run_plan, methods=["GET"]),
+    Route("/runs/{id}/view", run_view, methods=["GET"]),
 ]
 
 app = Starlette(routes=routes)

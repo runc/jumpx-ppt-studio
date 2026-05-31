@@ -49,6 +49,14 @@ export function findOutputPath(stream) {
   return k || null
 }
 
+// run id：从产物路径 /runs/<id>/index.html 抽 <id>（用于拉缩略图 / 内嵌预览）
+export function findRunId(stream) {
+  const p = findOutputPath(stream)
+  if (!p) return null
+  const m = p.match(/runs\/([^/]+)\/index\.html/)
+  return m ? m[1] : null
+}
+
 // 页数：优先虚拟 slide_plan.json，回退从 AI 文本里抓「N 页」
 export function findPageCount(stream) {
   const files = (stream && stream.values && stream.values.files) || {}
