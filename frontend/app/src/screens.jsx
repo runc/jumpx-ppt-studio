@@ -27,17 +27,14 @@ function InputScreen({ onStart }) {
     setBusy(true);
     try {
       for (const f of picked) {
-        let text = '';
-        const isPdf = /\.pdf$/i.test(f.name) || f.type === 'application/pdf';
-        if (isPdf) {
-          const buf = await f.arrayBuffer();
-          const r = await fetch('/api/extract', { method: 'POST', headers: { 'content-type': 'application/pdf' }, body: buf });
-          const j = await r.json();
-          text = (j && j.text) || '';
-        } else {
-          text = await f.text();   // txt / md 本地读
-        }
-        text = (text || '').trim();
+        const buf = await f.arrayBuffer();
+        const r = await fetch('/api/extract?name=' + encodeURIComponent(f.name), {
+          method: 'POST',
+          headers: { 'content-type': f.type || 'application/octet-stream' },
+          body: buf,
+        });
+        const j = await r.json();
+        let text = ((j && j.text) || '').trim();
         if (text) {
           setMaterial(m => (m ? m + '\n\n' : '') + `# 来自 ${f.name}\n` + text);
           setFiles(fs => [...fs, { name: f.name, chars: text.length }]);
@@ -72,10 +69,10 @@ function InputScreen({ onStart }) {
             <textarea className="material" value={material} onChange={e => setMaterial(e.target.value)}
               placeholder="可选 · 粘贴参考资料（笔记 / 文章 / 数据），或上传 PDF —— 副驾会吸收进内容，生成得更有血肉" />
             <div className="foot">
-              <input ref={fileRef} type="file" accept=".pdf,.txt,.md,application/pdf,text/plain" multiple
+              <input ref={fileRef} type="file" accept=".pdf,.docx,.pptx,.xlsx,.csv,.html,.htm,.txt,.md" multiple
                 style={{ display: 'none' }} onChange={onPickFiles} />
               <button className="attach" onClick={() => fileRef.current && fileRef.current.click()} disabled={busy}>
-                {busy ? <span className="ring" style={{ width: 13, height: 13 }} /> : '＋'} {busy ? '抽取中…' : '上传 PDF / 文本'}
+                {busy ? <span className="ring" style={{ width: 13, height: 13 }} /> : '＋'} {busy ? '解析中…' : '上传资料（PDF/Word/PPT/Excel）'}
               </button>
               {matChars > 0 && <span className="hintn">已附资料 {matChars} 字{files.length ? `（${files.length} 个文件）` : ''}</span>}
               <span className="spacer" />

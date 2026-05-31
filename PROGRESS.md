@@ -213,6 +213,12 @@
   - **接真**:`agent.composeBrief(topic, {len,aud,tone,material})` 把主题+篇幅/受众/语气+资料拼成结构化消息(资料块标注"请吸收进 Context Pack 作为内容来源");`startRun`/`startFromInput` 透传。篇幅/受众/语气不再被丢。
   - `recipe_api` 加 `POST /extract`(pdf→pypdf / 其它→utf-8);`vite.config` 加 `/api/extract` 代理。
   - **验证(真生成)**:塞带独特标记的资料(格里芬2013 glymphatic/60%/90分钟/标记ZX9)→ `project_brief.md`、`context_pack.md` 完整吸收(含 ZX9，并列为"数据准确呈现"要求)、`outline.md` 围绕资料长出页面(「Glymphatic 夜间清洗系统…60%」「按 90 分钟倍数设闹钟」)且自然到 11 项。/extract 对真 PDF 抽出 577 字。证明"喂料=grounded 变厚"正路打通。`vite build` 通过。
+- **Phase 8b · markitdown 多格式资料解析 — 完成 ✅**(用户建议:解析要支持 PDF/Word/PPTX 等)
+  - 调研纪要 `PARSE_STYLE_RESEARCH.md`(markitdown vs docling/unstructured/llama-parse)。选 **markitdown**:MIT、Docker 零额外系统库、文档类全离线、核心无 ML 依赖。
+  - `requirements.txt` 加 `markitdown[pdf,docx,pptx,xlsx]`;`recipe_api` 的 `/extract` 重写为 markitdown 统一解析(按 `?name=` 扩展名落临时文件→convert→Markdown;pdf 失败回退 pypdf;纯文本回退 utf-8;扫描件/纯图片提示暂不支持 OCR)。
+  - 前端 `onPickFiles` 改为所有文件带文件名送后端;accept 放开 PDF/Word/PPTX/Excel/CSV/HTML/txt/md;按钮文案「上传资料（PDF/Word/PPT/Excel）」。
+  - **验证**:PPTX 抽出标题+要点(带 slide 标记)、PDF 1276 字(含表格,优于 pypdf)、HTML 1473 字干净 md、md 直通。`vite build` 通过。
+- **Phase 9（待协作）· 风格导入 skill（视觉模型识别）**:用户定方向——**不走取色**,用**视觉模型**看 PPTX/图片识别风格,且要**和用户一起配一个"提取样式的 skill"**;用户将提供**视觉 model id**。现有事实备查:我们的"风格"=preset.json+css+style_lock 三元组,`style_name` 是封闭枚举需在配方拷贝里放开,build_html 只注入 7 个 `--asp-*`(详见 `PARSE_STYLE_RESEARCH.md`)。**待用户给视觉 model id + 一起开工。**
 - **后续可选**:① Phase 4b-3 可编辑版 PPTX(移植 PPTAgent html2pptx,Node+pptxgenjs,接受富 CSS 主题保真退化)② Electron 桌面版(双击启动,后期)③ 出图路径(AI 配图,需图片 backend key)。**核心 MVP(生成→交互→预览→导出 PDF/PNG/PPTX/HTML→单机 Docker)已闭环。**
 
 ## 护栏自检

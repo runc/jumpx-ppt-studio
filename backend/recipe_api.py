@@ -102,26 +102,50 @@ async def revalidate(request):
     return JSONResponse(R.revalidate_all())
 
 
-# —— 资料抽取：上传 PDF/文本 → 纯文本，供 Context Pack 吸收 ——
+# —— 资料抽取：上传 PDF/Word/PPTX/Excel/HTML/文本 → Markdown，供 Context Pack 吸收 ——
+# 统一用 markitdown（离线、多格式）；pdf 失败回退 pypdf；纯文本直接解码。
 MAX_MATERIAL = 20000  # 截断上限，避免塞爆上下文
+
+
+def _markitdown_text(data: bytes, name: str) -> str:
+    suffix = os.path.splitext(name)[1] or (".pdf" if data[:5] == b"%PDF-" else ".txt")
+    tmp = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
+    tmp.write(data)
+    tmp.close()
+    try:
+        from markitdown import MarkItDown
+        return (MarkItDown().convert(tmp.name).text_content or "").strip()
+    finally:
+        os.unlink(tmp.name)
+
+
+def _pypdf_text(data: bytes) -> str:
+    import io
+    from pypdf import PdfReader
+    reader = PdfReader(io.BytesIO(data))
+    return "\n".join((p.extract_text() or "") for p in reader.pages).strip()
+
 
 async def extract_text(request):
     data = await request.body()
     if not data:
         return JSONResponse({"error": "empty body"}, status_code=400)
-    ctype = request.headers.get("content-type", "")
+    name = request.query_params.get("name", "")
+    is_pdf = name.lower().endswith(".pdf") or data[:5] == b"%PDF-"
+    is_text = name.lower().endswith((".txt", ".md", ".markdown")) or (
+        not name and b"\x00" not in data[:1024])
     text = ""
-    if "pdf" in ctype or data[:5] == b"%PDF-":
+    try:
+        text = _markitdown_text(data, name)
+    except Exception:  # noqa: BLE001
+        text = ""
+    if not text:  # 回退
         try:
-            import io
-            from pypdf import PdfReader
-            reader = PdfReader(io.BytesIO(data))
-            text = "\n".join((p.extract_text() or "") for p in reader.pages)
+            text = _pypdf_text(data) if is_pdf else (data.decode("utf-8", "ignore").strip() if is_text else "")
         except Exception as e:  # noqa: BLE001
-            return JSONResponse({"error": f"pdf 解析失败：{e}"}, status_code=400)
-    else:
-        text = data.decode("utf-8", "ignore")
-    text = text.strip()
+            return JSONResponse({"error": f"解析失败：{e}"}, status_code=400)
+    if not text:
+        return JSONResponse({"error": "未能从文件抽出文本（可能是扫描件/纯图片，暂不支持 OCR）", "chars": 0, "text": ""})
     truncated = len(text) > MAX_MATERIAL
     return JSONResponse({"chars": len(text), "truncated": truncated, "text": text[:MAX_MATERIAL]})
 
