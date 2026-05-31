@@ -179,7 +179,11 @@
   - **实现 4b-1**:`backend/export_deck.py`——Playwright+Chromium 渲染真实 `index.html`。PDF:注入打印 CSS(html/body 去 `overflow:hidden`、deck 改 block、每页 1280×720 + `break-after`)→ `page.pdf()` 矢量 5 页。PNG:视口 1280×720@2x,逐页 `transform` 定位整屏截图 → zip。`recipe_api` 加 `GET /runs/{id}/export/pdf|png`;`vite.config` 已代理 `/api/runs`。前端 `App.jsx` live 完成态「导出▾」下拉:PDF/图片PNG(zip,download)/HTML 网页。
   - **依赖**:`requirements.txt` 加 `playwright>=1.40`(装后需 `playwright install chromium`,单机一次)。
   - **验证(真生成两次·浏览器+HTTP)**:PDF 5 页矢量、复杂版式(三栏卡片/2×2 对比)100% 保真(Read 渲染确认);PNG 5 张 2x 清晰;新 run(sleep-rethinking)现渲染 200;导出下拉菜单链接正确、端到端下载通。越界 id→404。`vite build` 通过。
-- **下一步 · Phase 4b-2(可选)· PPTX 图片忠实版**(每页截图铺满 → python-pptx `add_picture`,搭在现有 PNG 截图链路上 ~30 行)。**或直接 Phase 5 · 打包单机应用**(把三服务 + chromium 收成一键启动)。
+- **Phase 4b-2 · PPTX 图片忠实版 — 完成 ✅**
+  - `export_deck.py`:抽出共享 `_render_slide_pngs(html)`(PNG/PPTX 复用逐页截图);`export_pptx`——python-pptx 建 16:9(13.333×7.5in)空白页,每页 `add_picture` 整版铺满截图。保真 100%、不可编辑、可放映/批注。
+  - `recipe_api` 加 `GET /runs/{id}/export/pptx`;前端导出菜单加「PPTX · 每页整版图 · 像素级保真 · 可放映」。`requirements.txt` 加 `python-pptx>=1.0`。
+  - **验证**:读回 5 页、16:9、每页 1 张 full-bleed 图;HTTP 200 正确 mime;浏览器菜单 4 项(PDF/PPTX/图片PNG/HTML)链接正确;`vite build` 通过。
+- **下一步 · Phase 5 · 打包单机应用**:把三服务(langgraph dev :2024 / recipe_api :2025 / vite :5180,或前端构建成静态)+ chromium 收成一键启动;`.env`/model 配置;首启动自检(skill 就位、chromium 就位)。可选 4b-3:可编辑版 PPTX(移植 html2pptx)。
 
 ## 护栏自检
 - [x] 未 git commit / push。

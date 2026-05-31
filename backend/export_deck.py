@@ -67,13 +67,9 @@ async def export_pdf(rid: str) -> Path | None:
     return out
 
 
-async def export_png_zip(rid: str) -> Path | None:
-    """逐页截图（2x 清晰），打包成 zip。返回 zip 路径。"""
-    html = RUN.index_html_path(rid)
-    out_dir = _export_dir(rid)
-    if html is None or out_dir is None:
-        return None
-    pngs: list[tuple[str, bytes]] = []
+async def _render_slide_pngs(html: Path) -> list[bytes]:
+    """逐页截图（2x 清晰）→ 返回每页 PNG 字节。PNG/PPTX 共用。"""
+    pngs: list[bytes] = []
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         page = await browser.new_page(viewport={"width": W, "height": H},
@@ -86,11 +82,50 @@ async def export_png_zip(rid: str) -> Path | None:
                 "(i) => { const d = document.getElementById('deck');"
                 " if (d) d.style.transform = 'translateX(' + (-i * 100) + 'vw)'; }", i)
             await page.wait_for_timeout(140)
-            shot = await page.screenshot(type="png")
-            pngs.append((f"slide-{i + 1:02d}.png", shot))
+            pngs.append(await page.screenshot(type="png"))
         await browser.close()
+    return pngs
+
+
+async def export_png_zip(rid: str) -> Path | None:
+    """逐页截图打包成 zip。返回 zip 路径。"""
+    html = RUN.index_html_path(rid)
+    out_dir = _export_dir(rid)
+    if html is None or out_dir is None:
+        return None
+    pngs = await _render_slide_pngs(html)
     out = out_dir / f"{rid}-png.zip"
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as zf:
-        for name, data in pngs:
-            zf.writestr(name, data)
+        for i, data in enumerate(pngs):
+            zf.writestr(f"slide-{i + 1:02d}.png", data)
+    return out
+
+
+async def export_pptx(rid: str) -> Path | None:
+    """图片忠实版 PPTX（Phase 4b-2）：每页整屏截图铺满一张 16:9 幻灯片。
+
+    保真 100%（像素级还原 HTML 主题），不可编辑文字，但可在 PowerPoint/WPS
+    移动/批注/放映。复用 PNG 截图链路。
+    """
+    import io
+
+    from pptx import Presentation
+    from pptx.util import Inches
+
+    html = RUN.index_html_path(rid)
+    out_dir = _export_dir(rid)
+    if html is None or out_dir is None:
+        return None
+    pngs = await _render_slide_pngs(html)
+
+    prs = Presentation()
+    prs.slide_width = Inches(13.333)   # 16:9
+    prs.slide_height = Inches(7.5)
+    blank = prs.slide_layouts[6]
+    for data in pngs:
+        slide = prs.slides.add_slide(blank)
+        slide.shapes.add_picture(io.BytesIO(data), 0, 0,
+                                 width=prs.slide_width, height=prs.slide_height)
+    out = out_dir / f"{rid}.pptx"
+    prs.save(str(out))
     return out

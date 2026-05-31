@@ -140,6 +140,16 @@ async def export_png(request):
     return FileResponse(p, filename=f"{rid}-png.zip", media_type="application/zip")
 
 
+async def export_pptx(request):
+    rid = request.path_params["id"]
+    p = await EXPORT.export_pptx(rid)
+    if p is None:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    return FileResponse(
+        p, filename=f"{rid}.pptx",
+        media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation")
+
+
 routes = [
     Route("/recipes", list_recipes, methods=["GET"]),
     Route("/recipes/active", set_active, methods=["POST"]),
@@ -154,6 +164,7 @@ routes = [
     Route("/runs/{id}/view", run_view, methods=["GET"]),
     Route("/runs/{id}/export/pdf", export_pdf, methods=["GET"]),
     Route("/runs/{id}/export/png", export_png, methods=["GET"]),
+    Route("/runs/{id}/export/pptx", export_pptx, methods=["GET"]),
 ]
 
 app = Starlette(routes=routes)

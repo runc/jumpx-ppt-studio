@@ -92,6 +92,7 @@ function App() {
         {exportOpen && finished && runId && (
           <div className="export-pop">
             {[['PDF', '矢量 · 每页一张 · 便于打印/提交', `/api/runs/${runId}/export/pdf`, false],
+              ['PPTX', '每页整版图 · 像素级保真 · 可放映', `/api/runs/${runId}/export/pptx`, true],
               ['图片 PNG', '逐页高清 · 打包 zip', `/api/runs/${runId}/export/png`, true],
               ['HTML 网页', '可翻页 · 在线分享', `/api/runs/${runId}/view`, false]].map(([t, s, href, dl]) => (
               <a className="ei" key={t} href={href} target="_blank" rel="noreferrer" download={dl || undefined} onClick={() => setExportOpen(false)}>
