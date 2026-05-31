@@ -52,6 +52,7 @@ function App() {
   const [exportOpen, setExportOpen] = useStateA(false);
   const [skillsOpen, setSkillsOpen] = useStateA(false);
   const [live, setLive] = useStateA(false);   // true=接真 LangGraph 生成流
+  const [exporting, setExporting] = useStateA(null);   // 正在导出的格式（渲染需几秒，给反馈）
 
   const agent = useAgent();
   const tplName = (TEMPLATES.find(t => t.id === tpl) || {}).name || '素白';
@@ -74,6 +75,27 @@ function App() {
 
   // 输入 → 真生成（live）
   function startFromInput(t) { setTopic(t); setLive(true); startRun(agent, t); }
+
+  // 导出：渲染类（PDF/PPTX/PNG）需几秒，fetch→blob→下载，全程给「生成中」反馈
+  async function doExport(fmt, href, filename) {
+    if (exporting) return;
+    setExporting(fmt);
+    try {
+      const r = await fetch(href);
+      if (!r.ok) throw new Error('export ' + r.status);
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      setExportOpen(false);
+    } catch (e) {
+      alert('导出失败：' + e.message);
+    } finally {
+      setExporting(null);
+    }
+  }
   function startRender(m) { setMode(m); setWbDone(false); setScreen('workbench'); }
 
   const sun = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19" /></svg>;
@@ -91,15 +113,23 @@ function App() {
         <div className="avatar">林</div>
         {exportOpen && finished && runId && (
           <div className="export-pop">
-            {[['PDF', '矢量 · 每页一张 · 便于打印/提交', `/api/runs/${runId}/export/pdf`, false],
-              ['PPTX', '每页整版图 · 像素级保真 · 可放映', `/api/runs/${runId}/export/pptx`, true],
-              ['图片 PNG', '逐页高清 · 打包 zip', `/api/runs/${runId}/export/png`, true],
-              ['HTML 网页', '可翻页 · 在线分享', `/api/runs/${runId}/view`, false]].map(([t, s, href, dl]) => (
-              <a className="ei" key={t} href={href} target="_blank" rel="noreferrer" download={dl || undefined} onClick={() => setExportOpen(false)}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14" /></svg>
-                <div><b>{t}</b><div className="sub">{s}</div></div>
-              </a>
-            ))}
+            {[['PDF', '矢量 · 每页一张 · 便于打印/提交', `/api/runs/${runId}/export/pdf`, `${runId}.pdf`],
+              ['PPTX', '每页整版图 · 像素级保真 · 可放映', `/api/runs/${runId}/export/pptx`, `${runId}.pptx`],
+              ['图片 PNG', '逐页高清 · 打包 zip', `/api/runs/${runId}/export/png`, `${runId}-png.zip`]].map(([t, s, href, fn]) => {
+              const busy = exporting === t;
+              return (
+                <button className="ei" key={t} disabled={!!exporting} onClick={() => doExport(t, href, fn)}>
+                  {busy
+                    ? <span className="ring" style={{ width: 15, height: 15 }} />
+                    : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14" /></svg>}
+                  <div><b>{t}</b><div className="sub">{busy ? '生成中…（渲染需几秒）' : s}</div></div>
+                </button>
+              );
+            })}
+            <a className="ei" href={`/api/runs/${runId}/view`} target="_blank" rel="noreferrer" onClick={() => setExportOpen(false)}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 3h7v7M21 3l-9 9M19 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5" /></svg>
+              <div><b>HTML 网页</b><div className="sub">可翻页 · 在线分享</div></div>
+            </a>
           </div>
         )}
       </div>
