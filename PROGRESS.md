@@ -155,7 +155,12 @@
 - **Phase 3b-1 · 真 Vite+React 前端 — 完成 ✅**(commit 45a685f)
   - `frontend/app`:Vite+React;原型 `proto-*.jsx` → `src/` ES 模块(Slide/screens/Workbench/Recipe/App + data.js),去 Babel standalone/window 全局。
   - 验证:vite build 干净(36 模块);浏览器实跑 输入页 + 配方页(hero+4卡)渲染正常(:5180)。
-- **下一步 · Phase 3b-2/3 · 前端接后端**:① 配方页接 `recipe_api`(list/active/fork/编辑保存,无 LLM 可验);② 生成流接 LangGraph server(messages/updates/files/interrupt → 主舞台模板网格/同页两版/大纲编辑器)。然后 Phase 4 导出(PPTX)/Phase 5 打包。
+- **Phase 3b-2 · 配方页接真后端 — 完成 ✅**(commit ec957ed)
+  - `frontend/app/src/Recipe.jsx` 接 `/api/recipes`(vite 代理→:2025):列表/选用/fork/编辑(GET 真数据)/保存(PUT)/导出/上传;离线回退。
+  - manifest 增展示字段;`update_manifest` 白名单;save 分流(展示字段→manifest / 可改文件→save_editable / 锁定→拒)。
+  - 验证(浏览器+真后端):画廊从 API 加载、fork→编辑器真数据、保存 PUT→校验 ok。
+  - **本地起法**:① `cd backend && .venv/bin/uvicorn recipe_api:app --port 2025`;② `cd frontend/app && npm run dev`(:5180,/api 代理到 2025)。
+- **下一步 · Phase 3b-3 · 生成流接 LangGraph(最大块)**:`@langchain/langgraph-sdk` useStream 连 :2024;App.jsx 从 mock 驱动改为 stream 驱动——todos/流式/files、三交互点 interrupt → 主舞台覆盖层(大纲编辑器/模板网格/同页两版)+ resume。需真生成验证(用户 Ark key)。然后 Phase 4 导出/Phase 5 打包。
 
 ## 护栏自检
 - [x] 未 git commit / push。
