@@ -242,6 +242,39 @@ def revalidate_all() -> dict:
     return {m["id"]: validate_recipe(m["id"]) for m in list_recipes()}
 
 
+# ---------- 编辑层读写（供 API / 编辑器）----------
+def get_editable(rid: str) -> dict:
+    """返回可改文件 {相对路径: 内容}（供编辑器/进阶 Markdown）。"""
+    d = recipe_dir(rid)
+    out = {}
+    for f in EDITABLE:
+        p = d / f
+        out[f] = p.read_text(encoding="utf-8") if p.exists() else ""
+    return out
+
+
+def save_editable(rid: str, rel: str, content: str) -> None:
+    """只允许写可改层;写锁定层抛错(契约不可破)。"""
+    rel = rel.replace(os.sep, "/")
+    if rel not in EDITABLE:
+        raise ValueError(f"锁定/不可改文件,拒绝写入: {rel}")
+    p = recipe_dir(rid) / rel
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(content, encoding="utf-8")
+
+
+def set_density(rid: str, density) -> None:
+    m = read_manifest(rid)
+    m["density"] = int(density)
+    write_manifest(rid, m)
+
+
+def rename(rid: str, name: str) -> None:
+    m = read_manifest(rid)
+    m["name"] = name
+    write_manifest(rid, m)
+
+
 if __name__ == "__main__":
     ensure_recipes()
     print("recipes:", [m["id"] for m in list_recipes()], "| active:", get_active())
