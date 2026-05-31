@@ -1,11 +1,44 @@
-# RUN.md · 怎么本地启动
+# RUN.md · 怎么启动
 
-> 本地跑通 AI Slides WebApp 脚手架（阶段 2：hello-world deep agent + 官方 UI）。
-> 架构：`deep-agents-ui`(前端) → `langgraph dev`(后端 LangGraph server) → `deepagents` agent → 火山引擎方舟 model。
+> AI Slides WebApp。架构：`frontend/app`(Vite+React) → `langgraph dev`(:2024，生成 agent)
+> + `recipe_api`(:2025，配方/run/导出) → `deepagents` 驱动 ai-slide-producer skill → 火山方舟 model。
 
 ---
 
-## 0. 一次性准备
+## ⭐ 方式 A：Docker 一键启动（推荐 · 单机交付）
+
+前置：① `backend/.env` 已填火山方舟 `ARK_BASE_URL` / `ARK_API_KEY`（模板见 `backend/.env.example`）；
+② `jumpx-ppt-slides-skill` 与本仓库**同级**（都在 `Github/` 下，compose 只读挂载它）。
+
+```bash
+docker compose up --build      # 首次构建并启动（基础镜像较大，首次数分钟）
+# 打开 http://localhost:5180
+```
+
+- 一个容器跑齐三进程：`langgraph dev`(:2024) + `recipe_api`(:2025) + `vite`(:5180，仅它对外)。
+- 启动前跑 `selfcheck.py` 自检（.env / chromium / skill / 依赖 / 配方），缺什么报什么。
+- 产物与配方持久化在 docker volume `jumpx-workspace`（`runs/`、`recipes/` 跨重启保留）。
+- 导出 PDF/PNG/PPTX 用容器内 chromium 渲染，镜像已装 CJK 字体（中文 deck 正常）。
+- 停止：`docker compose down`（加 `-v` 连产物卷一起删）。
+
+> 桌面版（Electron 双击启动）为后期规划；当前以 Docker 为单机交付方式。
+
+---
+
+## 方式 B：本地三服务（开发）
+
+> 三个终端分别起。Python ≥3.11、Node ≥20。首次需
+> `cd backend && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt && .venv/bin/playwright install chromium`
+
+```bash
+cd backend && .venv/bin/langgraph dev --no-browser --port 2024 --allow-blocking   # ① 生成 agent
+cd backend && .venv/bin/uvicorn recipe_api:app --port 2025                          # ② 配方/run/导出
+cd frontend/app && npm install && npm run dev                                       # ③ 前端 → http://localhost:5180
+```
+
+---
+
+## 0. 一次性准备（方式 B 细节）
 
 **环境要求**：Python ≥3.11（实测 3.12.13）、Node ≥20（实测 22 可用）、yarn 1.x。
 

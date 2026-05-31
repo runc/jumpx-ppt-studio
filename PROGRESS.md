@@ -4,7 +4,7 @@
 
 ---
 
-## 当前状态：阶段 1 ✅ ｜ 阶段 2 ✅ ｜ 阶段 3 ✅ ｜ Phase 3a/3b-1/3b-2/3b-3 ✅（专属前端已接真 LangGraph 生成流，三交互点 + resume + 完成态浏览器验证通过）
+## 当前状态：MVP 闭环 ✅ ｜ 阶段 1–3 ✅ ｜ Phase 3a/3b ✅（专属前端接真 LangGraph 流）｜ Phase 4a 内嵌预览 ✅ ｜ Phase 4b 导出 PDF/PNG/PPTX ✅ ｜ Phase 5 Docker 单机打包 ✅（真起容器验证：UI/配方/langgraph 经 :5180 全通）
 
 最后更新：2026-05-31
 
@@ -183,7 +183,15 @@
   - `export_deck.py`:抽出共享 `_render_slide_pngs(html)`(PNG/PPTX 复用逐页截图);`export_pptx`——python-pptx 建 16:9(13.333×7.5in)空白页,每页 `add_picture` 整版铺满截图。保真 100%、不可编辑、可放映/批注。
   - `recipe_api` 加 `GET /runs/{id}/export/pptx`;前端导出菜单加「PPTX · 每页整版图 · 像素级保真 · 可放映」。`requirements.txt` 加 `python-pptx>=1.0`。
   - **验证**:读回 5 页、16:9、每页 1 张 full-bleed 图;HTTP 200 正确 mime;浏览器菜单 4 项(PDF/PPTX/图片PNG/HTML)链接正确;`vite build` 通过。
-- **下一步 · Phase 5 · 打包单机应用**:把三服务(langgraph dev :2024 / recipe_api :2025 / vite :5180,或前端构建成静态)+ chromium 收成一键启动;`.env`/model 配置;首启动自检(skill 就位、chromium 就位)。可选 4b-3:可编辑版 PPTX(移植 html2pptx)。
+- **Phase 5（顺手）· 导出进度反馈 + 首启动自检 — 完成 ✅**(commit e154a43)
+  - 导出进度反馈:渲染类导出 fetch→blob→下载,全程「生成中…」+ spinner,导出期禁用其余;HTML 直开新标签。
+  - `backend/selfcheck.py`:.env/依赖/chromium/skill/活动配方 五项自检,缺什么提示装什么,CLI 退出码,供 entrypoint 复用。本机 5 项全过。
+- **Phase 5 · Docker 单机打包 — 完成 ✅**(用户拍板:Docker 启动即可,Electron 留后期)
+  - `Dockerfile`:基于 `mcr.microsoft.com/playwright/python:v1.49.0-noble`(Ubuntu 24.04 自带 Python 3.12,deepagents 需 ≥3.11;jammy 的 3.10 装不上——已踩坑修正)+ 补 CJK 字体(`fonts-noto-cjk`,中文 deck 必需)+ Node 20。pip 装依赖 + `playwright install --with-deps chromium`;`npm install`。
+  - `docker/entrypoint.sh`:从环境变量合成 `.env`(langgraph.json 用 `env:.env`,镜像内无该文件)→ 跑 `selfcheck.py` → 起 `langgraph dev :2024`(`--allow-blocking --no-browser`)+ `recipe_api :2025` + 前台 `vite :5180`(`--host 0.0.0.0`)。
+  - `docker-compose.yml`:`build .`、`5180:5180`、`env_file backend/.env`、只读挂载同级 `../jumpx-ppt-slides-skill`→`/skill-src`(`JX_SKILL_SRC` 覆盖)、命名卷 `jumpx-workspace` 持久化 runs/recipes。`setup_workspace.SKILL_SRC` 改为可被 `JX_SKILL_SRC` 覆盖。`.dockerignore` 瘦身上下文。
+  - **验证(真起容器)**:`docker compose up` → 自检 5 项全过、三服务起齐;`http://localhost:5180`→200、`/api/recipes` 返回配方、`/lg/ok`→`{"ok":true}`、`/lg/assistants/search`→`slides_agent` 已注册。整条「UI→配方API→langgraph」代理链经唯一对外端口 5180 通。启动文档见 `RUN.md`「方式 A」。
+- **后续可选**:① Phase 4b-3 可编辑版 PPTX(移植 PPTAgent html2pptx,Node+pptxgenjs,接受富 CSS 主题保真退化)② Electron 桌面版(双击启动,后期)③ 出图路径(AI 配图,需图片 backend key)。**核心 MVP(生成→交互→预览→导出 PDF/PNG/PPTX/HTML→单机 Docker)已闭环。**
 
 ## 护栏自检
 - [x] 未 git commit / push。
