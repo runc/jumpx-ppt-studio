@@ -8,15 +8,18 @@
 ## ⭐ 方式 A：Docker 一键启动（推荐 · 单机交付）
 
 前置：① `backend/.env` 已填火山方舟 `ARK_BASE_URL` / `ARK_API_KEY`（模板见 `backend/.env.example`）；
-② `jumpx-ppt-slides-skill` 与本仓库**同级**（都在 `Github/` 下，compose 只读挂载它）。
+② 设 `SKILL_URL` = ai-slide-producer 发布 zip 的 URL（构建时拉进镜像，镜像自包含）。
 
 ```bash
+export SKILL_URL="https://<skill 发布 zip 地址>"
 docker compose up --build      # 首次构建并启动（基础镜像较大，首次数分钟）
 # 打开 http://localhost:5180
 ```
 
 - 一个容器跑齐三进程：`langgraph dev`(:2024) + `recipe_api`(:2025) + `vite`(:5180，仅它对外)。
+- skill 在**构建时**按 `SKILL_URL` 拉取并烤进镜像——部署机不需要单独有 skill 仓库。
 - 启动前跑 `selfcheck.py` 自检（.env / chromium / skill / 依赖 / 配方），缺什么报什么。
+- 交付/部署详见 [`DEPLOYMENT.md`](./DEPLOYMENT.md)。
 - 产物与配方持久化在 docker volume `jumpx-workspace`（`runs/`、`recipes/` 跨重启保留）。
 - 导出 PDF/PNG/PPTX 用容器内 chromium 渲染，镜像已装 CJK 字体（中文 deck 正常）。
 - 停止：`docker compose down`（加 `-v` 连产物卷一起删）。

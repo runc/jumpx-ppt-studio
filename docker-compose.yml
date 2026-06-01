@@ -1,25 +1,24 @@
-# Jumpx Slides · 单机启动（Phase 5）
-#   docker compose up --build      # 首次构建并启动
+# Jumpx Slides · 单机启动
+#   SKILL_URL=<ai-slide-producer release zip 的 URL> docker compose up --build
 #   打开 http://localhost:5180
 #
 # 前置：① backend/.env 已填火山方舟 base_url/api_key（见 backend/.env.example）
-#       ② jumpx-ppt-slides-skill 与本仓库同级（Github/ 下）——下方只读挂载它
+#       ② 设环境变量 SKILL_URL = ai-slide-producer 发布 zip 的 URL（构建时拉进镜像）。
+#          镜像自包含——部署机不需要再单独有 jumpx-ppt-slides-skill 仓库。
 services:
   jumpx-slides:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        # skill 的固定版本 release zip URL（GitHub release / R2 / 任意静态托管）
+        SKILL_URL: ${SKILL_URL:?请设置 SKILL_URL=skill 发布 zip 的 URL}
     image: jumpx-slides:latest
     ports:
       - "5180:5180"
     env_file:
       - backend/.env
-    environment:
-      # skill 源走只读挂载（容器内路径），覆盖默认的同级仓库定位
-      - JX_SKILL_SRC=/skill-src/skills/ai-slide-producer
     volumes:
-      # skill 源（只读）——主机上与本仓库同级的 jumpx-ppt-slides-skill
-      - ../jumpx-ppt-slides-skill:/skill-src:ro
       # 产物 + 配方持久化（runs/ recipes/ 跨重启保留）
       - jumpx-workspace:/app/backend/workspace
     restart: unless-stopped
