@@ -1,6 +1,7 @@
 // 实时工作台：由 LangGraph 流驱动（真 todos / 活动流 / 三交互点中断覆盖层 / 文件）。
 import React from 'react'
 import { readInterrupt, respondInterrupt, findOutputPath, runFinished, findPageCount, findRunId } from './agent.js'
+import { OutlineEditor } from './OutlineEditor.jsx'
 
 const REAL_PRESETS = ['teaching-clean', 'editorial-magazine', 'swiss-system', 'blueprint', 'sketch-notes', 'corporate', 'creator-social']
 const chk = <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3"><path d="M5 13l4 4L19 7" /></svg>
@@ -39,19 +40,7 @@ function Overlay({ stream }) {
   const { name, args } = intr
 
   if (name === 'confirm_outline') {
-    const outline = args.outline_md || args.outline || ''
-    return (
-      <div className="live-overlay">
-        <div className="ov-card">
-          <div className="ov-h">确认大纲 <span>{args.note || '改大纲很快；渲染成页后再改更贵'}</span></div>
-          <pre className="ov-outline">{outline || '（大纲生成中…）'}</pre>
-          <div className="ov-acts">
-            <button className="btn primary" onClick={() => respondInterrupt(stream, 'OK，确认大纲，继续')}>✓ 确认大纲，继续</button>
-            <button className="btn" onClick={() => respondInterrupt(stream, '请把要点更精简一些，重拟大纲')}>重拟（更精简）</button>
-          </div>
-        </div>
-      </div>
-    )
+    return <OutlineEditor stream={stream} args={args} />
   }
 
   if (name === 'choose_template') {
