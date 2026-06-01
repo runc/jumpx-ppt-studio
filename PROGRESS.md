@@ -265,6 +265,12 @@
   - `LiveWorkbench`:用 runSlug **生成中每 5s 轮询** `/api/runs/{slug}/plan`(slide_plan 写好前 404,写好后自动拾取);胶片缩略图变**可点**,点开 `PageDetail` 面板看该页完整内容(key_message + headline/sub + body 要点 + caption + speaker_notes + layout + 上/下页导航)。
   - **验证**:findRunSlug 实测解析出 `sleep-reboot`;`/plan` 端点返回 pages(早验);构建通过。视觉:缩略图有 slide_plan 后即可点开(注:slide_plan 在 pipeline 里写得较晚,约渲染前)。
   - **注**:更彻底的"渲染前审核 gate"(暂停让用户改逐页内容)需给 skill 加中断,属后续。
+- **Phase 13 · 彻底移除模板渲染器（模型直写成唯一路径）— 完成 ✅**(用户:留着没意义)
+  - **Skill 仓库 jumpx-ppt-forge**(本地提交 2924f40,未推):删 `build_html.py`+10 个 layout snippet+web-slide-template;08 重写为"模型直写唯一路径";SKILL/11/12/10/13/09/15 + validate_slide_plan + regenerate_slide + schema 全部清除"跑 build_html/加载 css/模板片段"过时表述;README/docs 同步。assets/styles+style-presets 保留为设计 token/风格定义。
+  - **Webapp**:`slide_tools` 删 `import build_html` 与模板回退、去掉 `JX_AI_RENDER` 开关——ai_render 为唯一路径,失败明确报错(不回退);`ai_render` 措辞更新。
+  - **验证**:`JX_SKILL_SRC=forge` 同步+reseed → skill 副本无 build_html/layouts、08 为模型直写版;`slide_tools` 导入正常(无 build_html 依赖);`build_slides_html('sleep-redesign')` 端到端 AI 渲染成功(6 页/28KB)。
+  - **Skill 文档产品化**(同期,本地提交 00d72ce):README 重写为产品级 + docs/ARCHITECTURE+WHY-IT-WORKS,删 8 篇过期中间态文档。
+  - **待推送**:forge 仓库两个本地提交(2924f40 移除模板 + 00d72ce 文档)需 `git push`(+建议打 tag)。
 - **后续可选**:① Phase 4b-3 可编辑版 PPTX(移植 PPTAgent html2pptx,Node+pptxgenjs,接受富 CSS 主题保真退化)② Electron 桌面版(双击启动,后期)③ 出图路径(AI 配图,需图片 backend key)。**核心 MVP(生成→交互→预览→导出 PDF/PNG/PPTX/HTML→单机 Docker)已闭环。**
 
 ## 护栏自检

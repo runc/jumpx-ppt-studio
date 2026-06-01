@@ -1,7 +1,7 @@
-"""AI 渲染器：让强模型直接写整套 HTML slides（取代填模板）。
+"""AI 渲染器：让强模型直接写整套 HTML slides —— 唯一渲染路径（模板渲染已移除）。
 
-spike 验证质量碾压模板版。保留 deck 外壳契约（#deck / .slide / translateX 翻页），
-以便现有「演示模式」与「导出 PDF/PNG/PPTX」继续可用。失败回退模板版（build_html）。
+保留 deck 外壳契约（#deck / .slide / translateX 翻页），以便「演示模式」与
+「导出 PDF/PNG/PPTX」继续可用。结构校验不过则 1 次修复，仍不过则报错（不回退模板）。
 """
 
 from __future__ import annotations
@@ -86,7 +86,7 @@ def _client():
 
 
 def render_deck_html(project_dir: Path) -> tuple[str | None, str]:
-    """返回 (html, note)。html 为 None 表示失败（调用方回退模板）。"""
+    """返回 (html, note)。html 为 None 表示失败（调用方报错，不回退）。"""
     src = project_dir / "source"
     try:
         plan = json.loads((src / "slide_plan.json").read_text(encoding="utf-8"))
@@ -130,9 +130,9 @@ def render_deck_html(project_dir: Path) -> tuple[str | None, str]:
             if 'id="deck"' in html2 and _slide_count(html2) == n:
                 html = html2
             elif _slide_count(html) != n:
-                return None, f"结构校验未过（slide 数 {cnt}≠{n}），回退模板"
+                return None, f"结构校验未过（slide 数 {cnt}≠{n}），渲染失败"
         except Exception:  # noqa: BLE001
             if cnt != n:
-                return None, f"结构校验未过（slide 数 {cnt}≠{n}），回退模板"
+                return None, f"结构校验未过（slide 数 {cnt}≠{n}），渲染失败"
 
     return html, f"AI 渲染成功（{n} 页，{len(html)} 字节）"

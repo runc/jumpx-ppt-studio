@@ -20,9 +20,8 @@ from langchain_core.tools import tool
 
 from setup_workspace import WORKSPACE, RUNS, SKILL_DST as SKILL_ROOT
 
-# build_html 是纯 stdlib 脚本，直接 import 进程内调用（不 shell out）。
+# 渲染唯一路径 = ai_render（模型直接写 HTML）；模板渲染器 build_html 已从 skill 移除。
 sys.path.insert(0, str(SKILL_ROOT / "scripts"))
-import build_html  # noqa: E402
 
 VALID_PRESETS = [
     "teaching-clean",
@@ -82,12 +81,11 @@ def _resolve_project_dir(project: str) -> Path | None:
 
 @tool
 def build_slides_html(project: str, minimal: bool = False) -> str:
-    """生成可直接打开的自包含 index.html 幻灯片。
+    """生成可直接打开的自包含 index.html 幻灯片（模型按 style_lock 直接写 HTML）。
 
     读取 runs/<project>/source/slide_plan.json 与 style_lock.json（你必须先写好这两份），
-    结合 skill 的模板与 CSS，输出 runs/<project>/index.html。
-    `project`：runs/ 下的工程目录名（slug）。`minimal`：是否用极简模板。
-    返回生成的 HTML 绝对路径。本工具替代 skill 的 build_html.py 脚本——不要 shell out。
+    由 ai_render 让模型按 08-web-renderer 契约直接写出 runs/<project>/index.html。
+    `project`：runs/ 下的工程目录名（slug）。返回生成的 HTML 绝对路径。
     """
     project_dir = _resolve_project_dir(project)
     if project_dir is None:
@@ -97,28 +95,17 @@ def build_slides_html(project: str, minimal: bool = False) -> str:
         return f"error: 缺少 {src}/slide_plan.json —— 请先用 write_file 写好。"
     if not (src / "style_lock.json").exists():
         return f"error: 缺少 {src}/style_lock.json —— 请先用 write_file 写好。"
-    # 主路径：AI 渲染器（模型直接写 HTML，质量远超模板）。失败回退模板。
     out = project_dir / "index.html"
-    render_note = ""
-    if not minimal and os.environ.get("JX_AI_RENDER", "1") != "0":
-        try:
-            import ai_render
-            html, note = ai_render.render_deck_html(project_dir)
-            if html:
-                out.write_text(html, encoding="utf-8")
-                render_note = note
-        except Exception as exc:  # noqa: BLE001
-            render_note = f"AI 渲染异常，回退模板：{type(exc).__name__}: {exc}"
-    if not out.exists() or not render_note.startswith("AI 渲染成功"):
-        try:
-            out = build_html.build(project_dir, SKILL_ROOT, minimal=minimal)
-            render_note = render_note or "模板渲染"
-        except SystemExit as exc:  # build_html 用 SystemExit 报缺文件
-            return f"error: build 失败：{exc}"
-        except Exception as exc:  # noqa: BLE001
-            return f"error: build 异常：{type(exc).__name__}: {exc}"
+    try:
+        import ai_render
+        html, note = ai_render.render_deck_html(project_dir)
+    except Exception as exc:  # noqa: BLE001
+        return f"error: AI 渲染异常：{type(exc).__name__}: {exc}"
+    if not html:
+        return f"error: AI 渲染失败：{note}（请重试或检查 slide_plan/style_lock）"
+    out.write_text(html, encoding="utf-8")
     return (
-        f"已生成幻灯片：{out}（{render_note}）\n"
+        f"已生成幻灯片：{out}（{note}）\n"
         f"在浏览器打开：file://{out}\n"
         f"（这是可见产物，请把该路径交给用户。）"
     )
