@@ -9,6 +9,7 @@
 
 from __future__ import annotations
 
+import os
 import shutil
 from pathlib import Path
 
@@ -16,13 +17,12 @@ BACKEND_DIR = Path(__file__).resolve().parent
 WORKSPACE = BACKEND_DIR / "workspace"
 RUNS = WORKSPACE / "runs"
 
-# 原 skill 源（只读）。相对本仓库定位，换机器只要仓库结构不变即可。
-SKILL_SRC = (
-    BACKEND_DIR.parent.parent  # Github/
-    / "jumpx-ppt-slides-skill"
-    / "skills"
-    / "ai-slide-producer"
-)
+# 原 skill 源（只读）。默认相对本仓库定位（jumpx-ppt-slides-skill 与本仓库同级）；
+# Docker 等场景可用 JX_SKILL_SRC 环境变量覆盖（指向挂载进来的 skill 目录）。
+SKILL_SRC = Path(os.environ.get(
+    "JX_SKILL_SRC",
+    BACKEND_DIR.parent.parent / "jumpx-ppt-slides-skill" / "skills" / "ai-slide-producer",
+))
 SKILL_DST = WORKSPACE / "skills" / "ai-slide-producer"
 
 _IGNORE = shutil.ignore_patterns("__pycache__", "*.pyc", "images", ".DS_Store")

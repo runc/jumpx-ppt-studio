@@ -20,9 +20,8 @@ from langchain_core.tools import tool
 
 from setup_workspace import WORKSPACE, RUNS, SKILL_DST as SKILL_ROOT
 
-# build_html 是纯 stdlib 脚本，直接 import 进程内调用（不 shell out）。
+# 渲染唯一路径 = ai_render（模型直接写 HTML）；模板渲染器 build_html 已从 skill 移除。
 sys.path.insert(0, str(SKILL_ROOT / "scripts"))
-import build_html  # noqa: E402
 
 VALID_PRESETS = [
     "teaching-clean",
@@ -51,6 +50,18 @@ def choose_template(recommended: list[str], note: str = "") -> str:
 
 
 @tool
+def confirm_outline(outline_md: str, note: str = "") -> str:
+    """交互点：把生成的大纲交给用户确认 / 修改（大纲门禁）。
+
+    在写好 runs/<project>/source/outline.md 之后、进入 slide_plan 之前调用。
+    `outline_md`：大纲全文（供 UI 以"左树/右预览"呈现）。
+    `note`：给用户的一句话（如"4 章 12 页，约 10 分钟"）。
+    返回用户的确认("OK")或修改意见；用户不改时默认放行。
+    """
+    return "OK"
+
+
+@tool
 def choose_render_mode(note: str = "") -> str:
     """交互点②：请用户选择输出形态——HTML 幻灯片 还是 生成图片。
 
@@ -70,12 +81,11 @@ def _resolve_project_dir(project: str) -> Path | None:
 
 @tool
 def build_slides_html(project: str, minimal: bool = False) -> str:
-    """生成可直接打开的自包含 index.html 幻灯片。
+    """生成可直接打开的自包含 index.html 幻灯片（模型按 style_lock 直接写 HTML）。
 
     读取 runs/<project>/source/slide_plan.json 与 style_lock.json（你必须先写好这两份），
-    结合 skill 的模板与 CSS，输出 runs/<project>/index.html。
-    `project`：runs/ 下的工程目录名（slug）。`minimal`：是否用极简模板。
-    返回生成的 HTML 绝对路径。本工具替代 skill 的 build_html.py 脚本——不要 shell out。
+    由 ai_render 让模型按 08-web-renderer 契约直接写出 runs/<project>/index.html。
+    `project`：runs/ 下的工程目录名（slug）。返回生成的 HTML 绝对路径。
     """
     project_dir = _resolve_project_dir(project)
     if project_dir is None:
@@ -85,14 +95,17 @@ def build_slides_html(project: str, minimal: bool = False) -> str:
         return f"error: 缺少 {src}/slide_plan.json —— 请先用 write_file 写好。"
     if not (src / "style_lock.json").exists():
         return f"error: 缺少 {src}/style_lock.json —— 请先用 write_file 写好。"
+    out = project_dir / "index.html"
     try:
-        out = build_html.build(project_dir, SKILL_ROOT, minimal=minimal)
-    except SystemExit as exc:  # build_html 用 SystemExit 报缺文件
-        return f"error: build 失败：{exc}"
+        import ai_render
+        html, note = ai_render.render_deck_html(project_dir)
     except Exception as exc:  # noqa: BLE001
-        return f"error: build 异常：{type(exc).__name__}: {exc}"
+        return f"error: AI 渲染异常：{type(exc).__name__}: {exc}"
+    if not html:
+        return f"error: AI 渲染失败：{note}（请重试或检查 slide_plan/style_lock）"
+    out.write_text(html, encoding="utf-8")
     return (
-        f"已生成幻灯片：{out}\n"
+        f"已生成幻灯片：{out}（{note}）\n"
         f"在浏览器打开：file://{out}\n"
         f"（这是可见产物，请把该路径交给用户。）"
     )
@@ -122,4 +135,4 @@ def generate_image(prompt: str, out_path: str) -> str:
     )
 
 
-SLIDE_TOOLS = [choose_template, choose_render_mode, build_slides_html, generate_image]
+SLIDE_TOOLS = [confirm_outline, choose_template, choose_render_mode, build_slides_html, generate_image]

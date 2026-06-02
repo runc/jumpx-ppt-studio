@@ -1,0 +1,18 @@
+# 构建上下文瘦身：这些不进镜像
+.git
+.gitignore
+**/.venv
+**/node_modules
+backend/workspace
+backend/.env
+frontend/app/dist
+frontend/app/.vite
+.export-research
+demo-dist
+docs
+ui
+*.md
+**/__pycache__
+**/*.pyc
+.DS_Store
+.wrangler
