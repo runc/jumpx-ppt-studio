@@ -12,7 +12,7 @@ services:
       dockerfile: Dockerfile
       args:
         SKILL_GIT_URL: ${SKILL_GIT_URL:-https://github.com/JumpX-Labs/jumpx-ppt-forge.git}
-        SKILL_REF: ${SKILL_REF:-main}
+        SKILL_REF: ${SKILL_REF:-v1.1.0}
     image: jumpx-slides:latest
     ports:
       - "5180:5180"

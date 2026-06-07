@@ -16,9 +16,10 @@ WORKDIR /app
 
 # —— 构建时拉 ai-slide-producer skill 的固定版本，烤进镜像（镜像自包含，部署不再依赖宿主 repo）——
 # 默认指向公开发布仓库 JumpX-Labs/jumpx-ppt-forge；SKILL_REF 钉版本（分支/tag/commit）。
-# 复现性：建议在 skill 仓库打 tag（如 v0.2.0），构建时 --build-arg SKILL_REF=v0.2.0。
+# 复现性：在 skill 仓库打 tag，构建时 --build-arg SKILL_REF=<tag>。
+# v1.1.0 = 确定性 QA 测量门禁（validate_html.py：外链/页序·layout/颜色漂移/文本预算 + --json）。
 ARG SKILL_GIT_URL=https://github.com/JumpX-Labs/jumpx-ppt-forge.git
-ARG SKILL_REF=main
+ARG SKILL_REF=v1.1.0
 RUN echo "拉取 skill: $SKILL_GIT_URL @ $SKILL_REF" && \
     git clone --depth 1 --branch "$SKILL_REF" "$SKILL_GIT_URL" /skill-src && \
     rm -rf /skill-src/.git && \
