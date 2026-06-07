@@ -1,0 +1,46 @@
+name: 🐞 Bug 反馈
+description: Studio（界面 / 编排 / 预览导出 / 部署）出问题
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！**生成质量本身**（写得厚不厚 / 版式 / 门禁）属于
+        [`jumpx-ppt-forge`](https://github.com/JumpX-Labs/jumpx-ppt-forge)；
+        这里收 Studio 的界面、HITL 编排、预览/导出/演示、部署问题。
+  - type: textarea
+    id: what
+    attributes:
+      label: 发生了什么
+      placeholder: 期望 vs 实际
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: 哪一块
+      options:
+        - 输入 / 解析（PDF·Word·PPTX）
+        - 大纲编辑 / HITL 门禁
+        - 选模板 / 样式导入
+        - 渲染预览
+        - 导出（PDF / PNG / PPTX）
+        - 演示模式
+        - 部署 / Docker / 反向代理
+        - 其他
+  - type: input
+    id: deploy
+    attributes:
+      label: 部署方式
+      placeholder: Docker compose / 本地 RUN.md；SKILL_REF=？；浏览器
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志（**注意脱敏，别贴 API key**）
+      render: shell

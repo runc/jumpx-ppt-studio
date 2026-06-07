@@ -1,0 +1,29 @@
+name: 💡 功能 / 改进建议
+description: 给 Studio 提新能力或改进（界面 / 编排 / 导出 / 部署）
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        涉及"生成质量 / 版式 / 门禁规则"的建议请去
+        [`jumpx-ppt-forge`](https://github.com/JumpX-Labs/jumpx-ppt-forge) 提。
+  - type: textarea
+    id: problem
+    attributes:
+      label: 想解决什么问题
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 你设想的做法
+  - type: dropdown
+    id: area
+    attributes:
+      label: 影响范围
+      options:
+        - 前端 / 交互
+        - HITL 编排（LangGraph）
+        - 渲染 / 导出（Playwright）
+        - 样式导入
+        - 部署 / 运维

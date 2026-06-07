@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🧩 Skill 本体 jumpx-ppt-forge
+    url: https://github.com/JumpX-Labs/jumpx-ppt-forge
+    about: 生成质量 / 提示词 / 门禁 / 渲染契约的问题，去这里提。
+  - name: 🚀 部署指南
+    url: https://github.com/JumpX-Labs/jumpx-ppt-studio/blob/master/DEPLOYMENT.md
+    about: Docker / 反向代理 / 资源要求。
+  - name: 🎓 JumpX AI 实战营
+    url: https://github.com/JumpX-Labs
+    about: 想学会"用 Agent 把想法做成真产品"。
