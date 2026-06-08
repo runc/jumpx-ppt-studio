@@ -8,7 +8,7 @@ cd /app/backend
 # 从环境变量合成 .env，让 langgraph dev 与 agent.py 的 load_dotenv 都能读到。
 if [ ! -f /app/backend/.env ]; then
   : > /app/backend/.env
-  for k in ARK_BASE_URL ARK_API_KEY ARK_MODEL OPENAI_API_KEY GEMINI_API_KEY NANOBANANA_API_KEY; do
+  for k in ARK_BASE_URL ARK_API_KEY ARK_MODEL ARK_VISION_MODEL OPENAI_API_KEY GEMINI_API_KEY NANOBANANA_API_KEY STUDIO_TENANCY; do
     v="${!k:-}"; [ -n "$v" ] && echo "$k=$v" >> /app/backend/.env
   done
 fi

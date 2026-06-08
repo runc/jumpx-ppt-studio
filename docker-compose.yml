@@ -16,6 +16,11 @@ services:
     image: jumpx-slides:latest
     ports:
       - "5180:5180"
+    environment:
+      # 部署形态：local（默认·自托管：「⚙ 模型能力」可把 key 存到本机）
+      #          shared（公开/多租户：后端拒绝存 key，只接受请求级临时 key——
+      #          对外站如 ai-ppt-studio.jumpxai.com 必须用 shared）
+      - STUDIO_TENANCY=${STUDIO_TENANCY:-local}
     env_file:
       - backend/.env
     volumes:

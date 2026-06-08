@@ -36,7 +36,8 @@ ai-slide-producer skill **不需要单独下载**——它在**构建镜像时**
 | `ARK_API_KEY`  | ✅ | 火山方舟密钥（**机密**：`ark-...`，勿提交 git、勿外泄、勿贴聊天/截图）|
 | `ARK_MODEL`    | 建议 | 生成 + 写 HTML 用的模型，当前 `ark-code-latest` |
 | `ARK_VISION_MODEL` | 建议 | 视觉模型（样式识别用），当前 `Doubao-Seed-2.0-lite` |
-| `OPENAI_API_KEY` / `GEMINI_API_KEY` / `NANOBANANA_API_KEY` | 选填 | AI 出图用；HTML 路径不需要，可留空 |
+| `OPENAI_API_KEY` / `GEMINI_API_KEY` / `NANOBANANA_API_KEY` | 选填 | AI 出图用；HTML 路径不需要，可留空（也可改在「⚙ 模型能力」页里填）|
+| `STUDIO_TENANCY` | 选填 | `local`（默认，自托管）/ `shared`（**公开多租户必填**：后端拒绝在服务端保存任何 key）。见 §6 |
 
 操作：
 ```bash
@@ -95,6 +96,9 @@ curl -s -o /dev/null -w "LG %{http_code}\n"  http://localhost:5180/lg/ok        
 
 容器只暴露 `:5180`（HTTP）。要域名 + HTTPS：在前面挂一个反向代理（Nginx / Caddy / Traefik）把 443 转发到 `127.0.0.1:5180` 即可。
 > 注意：**无内置鉴权**。若部署到公网，请自行在反向代理层加访问控制（Basic Auth / IP 白名单 / SSO），或只在内网/VPN 内访问。
+
+> ⚠️ **公开/多租户部署必须设 `STUDIO_TENANCY=shared`**（compose 已支持：`STUDIO_TENANCY=shared docker compose up --build -d`）。
+> 否则「⚙ 模型能力」页默认 `local` 模式会允许**任意访客把 key 写进服务端共享的 `providers.json`** 并被所有人共用。`shared` 模式下后端拒绝落盘，每个访客的 key 只留在自己浏览器、按请求用完即弃。
 
 容器 PaaS（Render / Fly.io / Railway / 云 VM）都能直接吃这个 `Dockerfile`，自带域名+HTTPS，比裸机省事。镜像已自包含（skill 构建时从公开仓库拉进去），默认开箱即用；如需钉版本在平台构建设置里配 `SKILL_REF` build-arg。
 
