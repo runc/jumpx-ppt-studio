@@ -1,6 +1,7 @@
-# Slide Studio Lite · Cloudflare Workers 静态资源（Pages 直连 deploy 亦可用此目录）
+# Slide Studio Lite · Cloudflare Pages / Workers 静态资源
 name = "slide-studio-lite"
 compatibility_date = "2025-06-01"
+pages_build_output_dir = "packages/lite/dist"
 
 [assets]
 directory = "./packages/lite/dist"
