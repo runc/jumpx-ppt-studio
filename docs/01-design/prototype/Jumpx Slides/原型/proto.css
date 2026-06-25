@@ -258,12 +258,13 @@ button{font-family:inherit}
 .cta svg{width:17px;height:17px}
 .ex{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 .ex .lab{font-size:12.5px;color:var(--ink-3)}
-.opts{display:flex;gap:10px;flex-wrap:wrap}
-.optgrp{display:flex;align-items:center;background:var(--paper-1);border:1px solid var(--hair);border-radius:11px;overflow:hidden}
-.optgrp .gl{font-size:11px;color:var(--ink-3);padding:0 11px;border-right:1px solid var(--hair-soft);align-self:stretch;display:flex;align-items:center;font-family:var(--font-num);letter-spacing:.04em}
-.seg{display:flex}
-.seg .s{font-size:13px;color:var(--ink-3);padding:9px 13px;cursor:pointer;transition:.12s;white-space:nowrap}
-.seg .s.on{color:var(--pine-deep);background:var(--pine-soft);font-weight:500}
+.opts{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.optgrp{display:inline-flex;align-items:stretch;background:var(--paper-1);border:1px solid var(--hair);border-radius:11px;overflow:hidden;flex:none}
+.optgrp .gl{font-size:11px;color:var(--ink-3);padding:0 11px;border-right:1px solid var(--hair-soft);display:flex;align-items:center;justify-content:center;flex:none;font-family:var(--font-num);letter-spacing:.04em;line-height:1}
+.seg{display:inline-flex;align-items:stretch}
+.seg .s{font-size:13px;font-weight:500;color:var(--ink-3);padding:0 13px;min-height:34px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background .12s,color .12s;white-space:nowrap;line-height:1.2;user-select:none;-webkit-user-select:none;border:0;background:transparent;font-family:inherit;appearance:none;-webkit-appearance:none;margin:0}
+.seg .s+.s{border-left:1px solid var(--hair-soft)}
+.seg .s.on{color:var(--pine-deep);background:var(--pine-soft)}
 .reassure{display:flex;align-items:center;gap:9px;color:var(--ink-3);font-size:12.5px}
 .reassure .pdot{width:6px;height:6px;border-radius:50%;background:var(--pine);flex:none}
 

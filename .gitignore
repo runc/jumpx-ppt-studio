@@ -18,6 +18,9 @@ backend/workspace/
 ui/node_modules/
 ui/.next/
 node_modules/
+.pnpm-store/
+packages/*/node_modules/
+packages/lite/dist/
 
 # vendor 参考仓库（只读，不纳入版本控制）
 vendor/

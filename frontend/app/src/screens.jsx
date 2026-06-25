@@ -88,7 +88,7 @@ function InputScreen({ onStart }) {
     <div className="optgrp">
       <span className="gl">{label}</span>
       <div className="seg">
-        {opts.map(o => <span key={o} className={'s' + (val === o ? ' on' : '')} onClick={() => set(o)}>{o}</span>)}
+        {opts.map(o => <button type="button" key={o} className={'s' + (val === o ? ' on' : '')} onClick={() => set(o)}>{o}</button>)}
       </div>
     </div>
   );

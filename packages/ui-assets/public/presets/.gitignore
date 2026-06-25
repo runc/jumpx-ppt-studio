@@ -1,0 +1,3 @@
+# Preset preview PNGs (optional). Run `pnpm sync:preset-previews` from repo root.
+*
+!.gitignore

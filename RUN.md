@@ -40,7 +40,67 @@ cd frontend/app && npm install && npm run dev                                   
 
 ---
 
-## 0. 一次性准备（方式 B 细节）
+## 方式 C：Lite 纯浏览器版（deepagentsjs · 无后端）
+
+> Agent loop 在浏览器内由 `deepagents@1.10.5`（`deepagents/browser`）驱动；与 Studio 共用同一套 skill 与 HITL 语义，但不依赖 LangGraph server / recipe_api。
+
+前置：Node ≥20、pnpm（根目录 `packageManager` 已锁 `pnpm@10.33.2`）。
+
+```bash
+# 1. 拉 skill 资产（与 Docker 同源：jumpx-ppt-forge @ v1.1.0）
+pnpm sync:skill
+
+# 2. 安装 monorepo 依赖
+pnpm install
+
+# 3. 启动 Lite（默认 http://localhost:5190）
+pnpm dev:lite
+```
+
+在 **⚙ 模型** 中填写 BYO-key（OpenAI 兼容 Base URL + API Key + Model），与 Studio 的火山方舟配置相同即可。
+
+Monorepo 包：
+
+| 包 | 路径 | 作用 |
+|---|---|---|
+| `@jumpx/lite` | `packages/lite` | 纯浏览器 Vite 应用 |
+| `@jumpx/agent-js` | `packages/agent-js` | `createDeepAgent` + slide tools + `useBrowserAgent` |
+| `@jumpx/core` | `packages/core` | 共享 composeBrief / preset 列表 |
+| `@jumpx/forge-assets` | `packages/forge-assets` | skill 静态副本（`sync:skill` 生成） |
+| `@jumpx/ports` | `packages/ports` | UI ↔ 运行时 **端口接口** + `activityFromMessages` 等 |
+| `@jumpx/adapters-browser` | `packages/adapters-browser` | Lite 用 ports 实现 + `PortsProvider` |
+| `@jumpx/ui` | `packages/ui` | Studio 共享 UI（LiveWorkbench / OutlineEditor / proto.css） |
+| `@jumpx/ui-assets` | `packages/ui-assets` | 选模板缩略图等静态资源（`presets.json`） |
+
+选模板缩略图（可选，与 Studio 同源）：
+
+```bash
+# Studio 侧生成：cd backend && python build_preset_previews.py
+pnpm sync:preset-previews   # 复制 PNG → packages/ui-assets/public/presets/
+```
+
+端口单测：`pnpm test:ports`
+
+构建静态站：`pnpm build:lite` → `packages/lite/dist/`（可部署到任意静态托管；注意 LLM API 的 CORS）。
+
+### Lite v1 能力边界（M2）
+
+| 能力 | Lite | Studio |
+|------|------|--------|
+| 主路径 HITL + HTML 预览 | ✅ | ✅ |
+| 配方 Hub / zip 导入导出 | ✅ IndexedDB | ✅ 磁盘 |
+| 资料 txt/md/pdf/docx | ✅ 浏览器解析 | ✅ markitdown |
+| 导出 PDF/PPTX/PNG | HTML 下载 + 打印导 PDF | Playwright 渲染 |
+| Run 历史 | IndexedDB 本地 | workspace volume |
+| LLM / 图片 API | 浏览器直连（受 CORS 限制） | 后端代发 |
+
+**CORS 排查**：设置页「模型能力」→ 测试连接；失败时按面板内说明配置反代或使用支持跨域的网关。
+
+**密钥**：存在 `localStorage`（`jumpx-lite-llm` / image 配置），勿在不可信页面使用。
+
+**Skill 版本**：`pnpm sync:skill` 写入 `packages/forge-assets/skill-ref.json`；Skill 页展示与下载同一份内置包。
+
+---
 
 **环境要求**：Python ≥3.11（实测 3.12.13）、Node ≥20（实测 22 可用）、yarn 1.x。
 

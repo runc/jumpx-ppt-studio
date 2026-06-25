@@ -1,0 +1,18 @@
+{
+  "name": "jumpx-ppt-studio",
+  "private": true,
+  "version": "0.2.0",
+  "description": "Jumpx PPT Studio monorepo — server studio + browser lite",
+  "scripts": {
+    "sync:skill": "node scripts/sync-forge-skill.mjs",
+    "sync:preset-previews": "node scripts/sync-preset-previews.mjs",
+    "test:ports": "pnpm --filter @jumpx/ports test",
+    "dev:lite": "pnpm sync:skill && pnpm --filter @jumpx/lite dev",
+    "build:lite": "pnpm sync:skill && pnpm --filter @jumpx/lite build",
+    "dev:studio": "cd frontend/app && npm run dev"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.33.2"
+}

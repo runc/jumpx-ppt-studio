@@ -27,7 +27,7 @@ export function SkillPage({ onClose }) {
   return (
     <div className="skp">
       <div className="skp-top">
-        <BrandLink sub="PPT Studio" />
+        <BrandLink />
         {onClose && <button className="btn" onClick={onClose}>← 返回</button>}
       </div>
 

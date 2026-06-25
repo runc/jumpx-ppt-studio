@@ -89,7 +89,7 @@ export function Providers({ onClose }) {
         <section className="pv-sec">
           <div className="pv-sec-h">文本模型 <span>（OpenAI 兼容端点 · 生成大纲与 HTML 必需）</span></div>
           <label className="pv-f"><span>Base URL</span>
-            <input value={text.base_url || ''} placeholder="https://…/v1（OpenAI 兼容）"
+            <input value={text.base_url || ''} placeholder={PV.TEXT_MODEL_DEFAULTS.base_url}
                    onChange={e => setText('base_url', e.target.value)} /></label>
           <label className="pv-f"><span>API Key</span>
             <input type="password" value={text.api_key || ''} placeholder="sk-…"
@@ -104,7 +104,7 @@ export function Providers({ onClose }) {
                   {textModels.map(m => <option key={m} value={m}>{m}</option>)}
                   <option value="__manual__">✎ 手动填写…</option>
                 </select>
-              : <input value={text.model || ''} placeholder="测试连接后可下拉选择，或手动填写"
+              : <input value={text.model || ''} placeholder={PV.TEXT_MODEL_DEFAULTS.model}
                        onChange={e => setText('model', e.target.value)} />}
           </label>
           <div className="pv-row">

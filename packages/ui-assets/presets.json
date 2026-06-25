@@ -1,0 +1,46 @@
+{
+  "presets": [
+    {
+      "id": "teaching-clean",
+      "display_name": "教学清爽",
+      "mood": "清晰、友好、课堂感",
+      "thumbs": ["/presets/teaching-clean-1.png", "/presets/teaching-clean-2.png"]
+    },
+    {
+      "id": "editorial-magazine",
+      "display_name": "杂志编辑",
+      "mood": "观点、叙事、杂志排版",
+      "thumbs": ["/presets/editorial-magazine-1.png", "/presets/editorial-magazine-2.png"]
+    },
+    {
+      "id": "swiss-system",
+      "display_name": "瑞士系统",
+      "mood": "网格、理性、极简",
+      "thumbs": ["/presets/swiss-system-1.png", "/presets/swiss-system-2.png"]
+    },
+    {
+      "id": "blueprint",
+      "display_name": "蓝图",
+      "mood": "技术、结构、工程感",
+      "thumbs": ["/presets/blueprint-1.png", "/presets/blueprint-2.png"]
+    },
+    {
+      "id": "sketch-notes",
+      "display_name": "手绘笔记",
+      "mood": "轻松、手绘、白板",
+      "thumbs": ["/presets/sketch-notes-1.png", "/presets/sketch-notes-2.png"]
+    },
+    {
+      "id": "corporate",
+      "display_name": "企业商务",
+      "mood": "稳重、汇报、商务",
+      "thumbs": ["/presets/corporate-1.png", "/presets/corporate-2.png"]
+    },
+    {
+      "id": "creator-social",
+      "display_name": "创作者社交",
+      "mood": "活泼、社交、传播",
+      "thumbs": ["/presets/creator-social-1.png", "/presets/creator-social-2.png"]
+    }
+  ]
+}

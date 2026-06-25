@@ -1,0 +1,11 @@
+{
+  "name": "@jumpx/forge-assets",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./skillBundle": "./src/skillBundle.ts",
+    "./skill-ref.json": "./skill-ref.json"
+  }
+}

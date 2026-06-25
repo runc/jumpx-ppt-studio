@@ -4,6 +4,11 @@
 
 const LS_KEY = 'jumpx.providers.v1'
 
+export const TEXT_MODEL_DEFAULTS = {
+  base_url: 'https://api.deepseek.com/anthropic',
+  model: 'deepseek',
+}
+
 export function loadDraft() {
   try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}') } catch { return {} }
 }

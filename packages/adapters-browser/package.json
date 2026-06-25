@@ -1,0 +1,23 @@
+{
+  "name": "@jumpx/adapters-browser",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./mock-data": "./src/mock-data.ts"
+  },
+  "dependencies": {
+    "@jumpx/agent-js": "workspace:*",
+    "@jumpx/core": "workspace:*",
+    "@jumpx/forge-assets": "workspace:*",
+    "@jumpx/ports": "workspace:*",
+    "@jumpx/ui-assets": "workspace:*",
+    "jszip": "^3.10.1",
+    "mammoth": "^1.12.0",
+    "pdfjs-dist": "^6.0.227"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0"
+  }
+}

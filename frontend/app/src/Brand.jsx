@@ -1,7 +1,9 @@
 import React from 'react'
 
-// JumpX 官网。品牌标 + 官网跳转的唯一真相源。
-export const JUMPX_SITE = 'https://jumpxai.vercel.app/'
+// Slide Studio 官网。品牌标 + 官网跳转的唯一真相源。
+export const JUMPX_SITE = 'https://aiartifacts.art/slidestudio'
+
+const BRAND_NAME = 'Slide Studio'
 
 const EXT = (
   <svg className="brand-ext" viewBox="0 0 24 24" width="11" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
@@ -9,14 +11,27 @@ const EXT = (
   </svg>
 )
 
-// 可点击品牌标 → 跳 JumpX 官网（新标签）。用于顶栏 / Skill 页等带 chrome 的页面。
+function BrandGlyph({ size = 'md' }) {
+  return (
+    <span className={'brand-glyph' + (size === 'sm' ? ' sm' : '')} aria-hidden="true">
+      SS
+    </span>
+  )
+}
+
+// 可点击品牌标 → 跳 Slide Studio 官网（新标签）。用于顶栏 / Skill 页等带 chrome 的页面。
 export function BrandLink({ sub = '', compact = false, onDark = false, className = '' }) {
   const cls = 'brand-link' + (onDark ? ' on-dark' : '') + (className ? ' ' + className : '')
   return (
     <a className={cls} href={JUMPX_SITE} target="_blank" rel="noopener noreferrer"
-       title="访问 JumpX 官网 ↗" aria-label="JumpX · 访问官网">
-      <img className="brand-mark" src="/jumpx-logo.svg" alt="JumpX" width="24" height="24" />
-      {!compact && <span className="brand-word">JumpX{sub && <span className="brand-sub">{sub}</span>}</span>}
+       title="访问 Slide Studio ↗" aria-label="Slide Studio · 访问官网">
+      <BrandGlyph />
+      {!compact && (
+        <span className="brand-word">
+          {BRAND_NAME}
+          {sub && <span className="brand-sub">/ {sub}</span>}
+        </span>
+      )}
       {EXT}
     </a>
   )
@@ -26,9 +41,9 @@ export function BrandLink({ sub = '', compact = false, onDark = false, className
 export function BrandMark({ onDark = false, className = '' }) {
   const cls = 'brand-mark-static' + (onDark ? ' on-dark' : '') + (className ? ' ' + className : '')
   return (
-    <span className={cls} aria-label="JumpX">
-      <img className="brand-mark" src="/jumpx-logo.svg" alt="JumpX" width="22" height="22" />
-      <span className="brand-word">JumpX</span>
+    <span className={cls} aria-label={BRAND_NAME}>
+      <BrandGlyph size="sm" />
+      <span className="brand-word">{BRAND_NAME}</span>
     </span>
   )
 }

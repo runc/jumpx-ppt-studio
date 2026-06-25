@@ -1,0 +1,10 @@
+{
+  "name": "@jumpx/ui-assets",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./presets.json": "./presets.json",
+    "./presets/*": "./public/presets/*"
+  }
+}
