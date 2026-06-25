@@ -1,0 +1,19 @@
+{
+  "name": "@jumpx/ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles/proto.css": "./src/styles/proto.css"
+  },
+  "dependencies": {
+    "@jumpx/adapters-browser": "workspace:*",
+    "@jumpx/agent-js": "workspace:*",
+    "@jumpx/core": "workspace:*",
+    "@jumpx/ports": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0"
+  }
+}

@@ -35,8 +35,8 @@ _local/
 # 系统
 .DS_Store
 
-# vendored 的 deep-agents-ui clone（自带 .git，可重新 clone）
-ui/
+# vendored 的 deep-agents-ui clone（自带 .git，可重新 clone）— 仅根目录 ui/
+/ui/
 
 # 前端构建
 frontend/app/node_modules/
