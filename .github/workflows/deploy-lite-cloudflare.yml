@@ -1,0 +1,61 @@
+name: Deploy Lite to Cloudflare Pages
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'packages/lite/**'
+      - 'packages/ui/**'
+      - 'packages/ui-assets/**'
+      - 'packages/agent-js/**'
+      - 'packages/adapters-browser/**'
+      - 'packages/core/**'
+      - 'packages/ports/**'
+      - 'packages/forge-assets/**'
+      - 'scripts/sync-forge-skill.mjs'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'package.json'
+      - 'wrangler.toml'
+      - '.github/workflows/deploy-lite-cloudflare.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-lite-cloudflare
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Lite
+        run: pnpm build:lite
+        env:
+          FORCE_SYNC: '1'
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy packages/lite/dist --project-name=slide-studio-lite --branch=${{ github.ref_name }}

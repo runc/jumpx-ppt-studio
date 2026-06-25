@@ -9,6 +9,7 @@
     "test:ports": "pnpm --filter @jumpx/ports test",
     "dev:lite": "pnpm sync:skill && pnpm --filter @jumpx/lite dev",
     "build:lite": "pnpm sync:skill && pnpm --filter @jumpx/lite build",
+    "deploy:lite": "pnpm build:lite && pnpm exec wrangler pages deploy packages/lite/dist --project-name=slide-studio-lite",
     "dev:studio": "cd frontend/app && npm run dev"
   },
   "engines": {

@@ -1,6 +1,7 @@
-# Jumpx Slides 交互原型 · Cloudflare Workers 静态资源部署
-name = "jumpx-slides-demo"
-compatibility_date = "2026-05-31"
+# Slide Studio Lite · Cloudflare Workers 静态资源（Pages 直连 deploy 亦可用此目录）
+name = "slide-studio-lite"
+compatibility_date = "2025-06-01"
 
 [assets]
-directory = "./demo-dist"
+directory = "./packages/lite/dist"
+not_found_handling = "single-page-application"
