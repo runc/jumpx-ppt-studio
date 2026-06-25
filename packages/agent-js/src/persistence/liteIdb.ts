@@ -6,7 +6,7 @@ export type CheckpointRow = {
 
 export type CheckpointWriteRow = Record<string, [taskId: string, channel: string, value: string]>
 
-const DB_NAME = 'jumpx-lite-agent'
+const DB_NAME = 'aiartifacts-slide-studio-agent'
 const DB_VERSION = 1
 
 let dbPromise: Promise<IDBDatabase> | null = null

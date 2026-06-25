@@ -162,7 +162,7 @@ export function createBrowserPorts(): AppPorts {
           model: body.model || '',
         })
         const r = await generateImageInBrowser(
-          'JumpX connectivity test',
+          'AIArtifacts connectivity test',
           'runs/__test__/images/probe.png',
         )
         saveImageCfg(prev)
@@ -233,7 +233,7 @@ export function createBrowserPorts(): AppPorts {
     async exportRun(slug: string, format: ExportFormat, stream?: AgentStream | null) {
       if (format !== 'html') {
         throw new Error(
-          `${format.toUpperCase()} 导出需 Studio 后端渲染。Lite 请下载 HTML 后浏览器「打印 → 另存为 PDF」。`,
+          `${format.toUpperCase()} 导出需 Slide Studio 完整版渲染。Lite 请下载 HTML 后浏览器「打印 → 另存为 PDF」。`,
         )
       }
       const html = htmlFromStream(stream, slug)

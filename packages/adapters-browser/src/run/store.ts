@@ -1,7 +1,7 @@
 import type { SlidePlanPage } from '@jumpx/ports'
 import { parseSlidePlanFromFiles } from '@jumpx/ports'
 
-const DB_NAME = 'jumpx-lite-runs'
+const DB_NAME = 'aiartifacts-slide-studio-runs'
 const DB_VERSION = 1
 const STORE = 'runs'
 

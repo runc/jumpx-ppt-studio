@@ -1,6 +1,6 @@
 # @jumpx/forge-assets
 
-`jumpx-ppt-forge` skill 静态副本，供浏览器 Lite 版挂载。
+幻灯 skill 静态副本，供浏览器 Slide Studio Lite 版挂载。
 
 ```bash
 pnpm sync:skill          # 从 GitHub 拉 v1.1.0（与 Dockerfile 一致）

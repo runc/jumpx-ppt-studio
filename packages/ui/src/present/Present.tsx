@@ -1,5 +1,6 @@
 import React from 'react'
 import { BrandMark } from '../shell/Brand.js'
+import { PRESENT_HTML_KEY_PREFIX } from '@jumpx/agent-js'
 import type { SlidePlanPage } from '@jumpx/ports'
 
 const LOGICAL_W = 1280
@@ -41,7 +42,7 @@ function hideDeckChrome(iframe: HTMLIFrameElement | null) {
 
 function makeChannel(presentKey: string, role: string, onMsg: (data: Record<string, unknown>) => void) {
   if (typeof BroadcastChannel === 'undefined') return { post: () => {}, close: () => {} }
-  const ch = new BroadcastChannel(`jumpx-present-${presentKey}`)
+  const ch = new BroadcastChannel(`aiartifacts-present-${presentKey}`)
   const id = role + '-' + Math.floor(performance.now())
   ch.onmessage = (e) => {
     if (e.data && e.data.sender !== id) onMsg(e.data)
@@ -255,7 +256,7 @@ export function PresentStage({
   function openPresenter() {
     if (previewHtml) {
       try {
-        sessionStorage.setItem(`jumpx-present-html-${presentKey}`, previewHtml)
+        sessionStorage.setItem(`${PRESENT_HTML_KEY_PREFIX}${presentKey}`, previewHtml)
       } catch {
         /* ignore quota */
       }

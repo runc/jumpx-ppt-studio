@@ -8,7 +8,7 @@ export type LlmConfig = {
   provider?: LlmProvider
 }
 
-const STORAGE_KEY = 'jumpx-lite-llm'
+const STORAGE_KEY = 'aiartifacts-slide-studio-llm'
 
 /** 文本模型未配置时的占位 / 首次默认值（DeepSeek · Anthropic 兼容） */
 export const LLM_TEXT_DEFAULTS = {

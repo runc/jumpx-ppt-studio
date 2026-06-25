@@ -30,3 +30,4 @@ export {
   type BrowserAgentStream,
 } from './useBrowserAgent.js'
 export { activityFromMessages, tasksFromTodos } from '@jumpx/ports'
+export { ACTIVE_THREAD_KEY, ACTIVE_TOPIC_KEY, PRESENT_HTML_KEY_PREFIX } from './persistence/indexedDbCheckpointSaver.js'

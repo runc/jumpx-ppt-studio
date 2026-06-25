@@ -8,6 +8,8 @@ import {
   runFinished,
   findRunId,
   type BrowserAgentStream,
+  ACTIVE_TOPIC_KEY,
+  PRESENT_HTML_KEY_PREFIX,
 } from '@jumpx/agent-js'
 import { usePorts, useActiveRecipeSkill, planFromFiles, titleFromPlan } from '@jumpx/adapters-browser'
 import {
@@ -111,7 +113,7 @@ export function App() {
       return
     }
     try {
-      const t = localStorage.getItem('jumpx-lite-active-topic')
+      const t = localStorage.getItem(ACTIVE_TOPIC_KEY)
       if (t) setTopic(t)
     } catch {
       /* ignore */
@@ -151,7 +153,7 @@ export function App() {
       const tip =
         'Lite 浏览器版不支持 Playwright 级 ' +
         fmt +
-        ' 导出。\n\n建议：\n1. 先下载 HTML 网页\n2. 浏览器打开后「打印 → 另存为 PDF」\n\n或在 Studio（Docker）中使用完整导出。'
+        ' 导出。\n\n建议：\n1. 先下载 HTML 网页\n2. 浏览器打开后「打印 → 另存为 PDF」\n\n或在 Slide Studio 完整版（Docker）中使用完整导出。'
       if (!confirm(tip + '\n\n仍要尝试？')) return
     }
     setExporting(fmt)
@@ -182,7 +184,7 @@ export function App() {
     setPresentPages(plan?.pages || [])
     if (previewHtml) {
       try {
-        sessionStorage.setItem(`jumpx-present-html-${runId}`, previewHtml)
+        sessionStorage.setItem(`${PRESENT_HTML_KEY_PREFIX}${runId}`, previewHtml)
       } catch {
         /* ignore */
       }
@@ -274,8 +276,8 @@ export function App() {
             <div className="export-pop">
               {[
                 ['PDF', 'Lite：建议 HTML → 打印为 PDF'],
-                ['PPTX', 'Lite：需 Studio 后端渲染'],
-                ['图片 PNG', 'Lite：需 Studio 后端渲染'],
+                ['PPTX', 'Lite：需 Slide Studio 完整版渲染'],
+                ['图片 PNG', 'Lite：需 Slide Studio 完整版渲染'],
               ].map(([t, s]) => {
                 const busy = exporting === t
                 return (
@@ -346,7 +348,7 @@ export function App() {
   if (presentParam && presenterRole) {
     const storedHtml =
       typeof window !== 'undefined'
-        ? sessionStorage.getItem(`jumpx-present-html-${presentParam}`)
+        ? sessionStorage.getItem(`${PRESENT_HTML_KEY_PREFIX}${presentParam}`)
         : null
     return (
       <PresenterView

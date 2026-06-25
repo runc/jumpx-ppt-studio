@@ -6,7 +6,7 @@ export type ImageProviderCfg = {
   api_key: string
 }
 
-const IMAGE_STORAGE_KEY = 'jumpx-lite-image-provider'
+const IMAGE_STORAGE_KEY = 'aiartifacts-slide-studio-image-provider'
 
 export const IMAGE_DEFAULTS: Record<string, { model: string; base_url: string; size: string }> = {
   openai: { model: 'gpt-image-2', base_url: 'https://api.openai.com/v1', size: '1024x1024' },

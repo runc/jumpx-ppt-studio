@@ -370,8 +370,9 @@ export function getLiteCheckpointer(): LiteIndexedDBCheckpointSaver {
   return sharedCheckpointer
 }
 
-export const ACTIVE_THREAD_KEY = 'jumpx-lite-active-thread'
-export const ACTIVE_TOPIC_KEY = 'jumpx-lite-active-topic'
+export const ACTIVE_THREAD_KEY = 'aiartifacts-slide-studio-active-thread'
+export const ACTIVE_TOPIC_KEY = 'aiartifacts-slide-studio-active-topic'
+export const PRESENT_HTML_KEY_PREFIX = 'aiartifacts-present-html-'
 
 export async function hasPersistedThread(threadId: string): Promise<boolean> {
   const allKeys = await idbGetAllKeys('checkpoints')

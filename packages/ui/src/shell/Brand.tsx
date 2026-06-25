@@ -1,6 +1,6 @@
 import React from 'react'
 
-export const JUMPX_SITE = 'https://aiartifacts.art/slidestudio'
+export const AIARTIFACTS_SITE = 'https://aiartifacts.art/slidestudio'
 
 const BRAND_NAME = 'Slide Studio'
 
@@ -41,7 +41,7 @@ export function BrandLink({
   return (
     <a
       className={cls}
-      href={JUMPX_SITE}
+      href={AIARTIFACTS_SITE}
       target="_blank"
       rel="noopener noreferrer"
       title="访问 Slide Studio ↗"

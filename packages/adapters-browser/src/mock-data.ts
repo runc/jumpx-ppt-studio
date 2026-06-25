@@ -69,7 +69,7 @@ export const MOCK_STYLES = [
 ] as const
 
 export const LITE_STUB_MSG =
-  'Lite 浏览器版：此能力需后端或后续 Phase 实装。当前为占位，界面与 Studio 保持一致。'
+  'Lite 浏览器版：此能力需后端或后续 Phase 实装。当前为占位，界面与 Slide Studio 完整版保持一致。'
 
 export const MOCK_SKILL_OVERVIEW = {
   name: 'ai-slide-producer',

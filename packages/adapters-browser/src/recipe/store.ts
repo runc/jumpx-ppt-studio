@@ -14,7 +14,7 @@ import {
 } from './skill-bridge.js'
 import { assertEditablePath, validateRecipeFiles } from './validate.js'
 
-const DB_NAME = 'jumpx-lite-recipes'
+const DB_NAME = 'aiartifacts-slide-studio-recipes'
 const DB_VERSION = 1
 const STORE = 'recipes'
 const META_STORE = 'meta'
